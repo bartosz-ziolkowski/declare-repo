@@ -1,3 +1,5 @@
+"use server";
+
 import { NextResponse } from "next/server";
 import User from "@/database/models/user";
 import { errorHandler } from "@/utils/server/errorHandler";

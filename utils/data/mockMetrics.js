@@ -20,7 +20,7 @@ export const mockMetrics = [
     formula:
       "\\operatorname{Density}(\\mathrm{G})=\\max _{c \\in \\operatorname{Comp}(G)} \\frac{\\left|C_{c}\\right|}{\\left|A_{c}\\right|}",
     reference: {
-      name: "Complexity in declarative process mode",
+      name: "Complexity in declarative process models",
       url: "https://backend.orbit.dtu.dk/ws/portalfiles/portal/330066936/1_s2.0_S0957417423014264_main.pdf",
     },
     author: "6712681d35073df727e2ad7e",
@@ -33,7 +33,7 @@ export const mockMetrics = [
     formula:
       "\\text{ConstraintVariability}(G) =\\max _{c \\in\\left\\{c^{\\prime}\\left|c^{\\prime} \\in \\operatorname{Comp}(G) \\wedge\\right| C_{c^{\\prime}} \\mid>0\\right\\}}\\left\\{-\\sum_{t \\in \\mathcal{T}_{c}} p(c, t) \\cdot \\log_{|\\mathcal{T}|}(p(c, t))\\right\\}",
     reference: {
-      name: "Complexity in declarative process mode",
+      name: "Complexity in declarative process models",
       url: "https://backend.orbit.dtu.dk/ws/portalfiles/portal/330066936/1_s2.0_S0957417423014264_main.pdf",
     },
     author: "6712681d35073df727e2ad7e",
@@ -45,7 +45,7 @@ export const mockMetrics = [
       "The number of activities of a declarative model represented as a graph G",
     formula: "\\text{Activities}(G) =\\left|A_{G}\\right|",
     reference: {
-      name: "Complexity in declarative process mode",
+      name: "Complexity in declarative process models",
       url: "https://backend.orbit.dtu.dk/ws/portalfiles/portal/330066936/1_s2.0_S0957417423014264_main.pdf",
     },
     author: "6712681d35073df727e2ad7e",
@@ -57,7 +57,7 @@ export const mockMetrics = [
       "The number of constraints of a declarative model represented as a graph G",
     formula: "\\text{Constraints}(G) = |C_G|",
     reference: {
-      name: "Complexity in declarative process mode",
+      name: "Complexity in declarative process models",
       url: "https://backend.orbit.dtu.dk/ws/portalfiles/portal/330066936/1_s2.0_S0957417423014264_main.pdf",
     },
     author: "6712681d35073df727e2ad7e",
@@ -70,7 +70,7 @@ export const mockMetrics = [
     formula:
       "\\operatorname{Separability}(G)=\\frac{|\\operatorname{Comp}(G)|}{\\left|A_{G}\\right|+\\left|C_{G}\\right|}",
     reference: {
-      name: "Complexity in declarative process mode",
+      name: "Complexity in declarative process models",
       url: "https://backend.orbit.dtu.dk/ws/portalfiles/portal/330066936/1_s2.0_S0957417423014264_main.pdf",
     },
     author: "6712681d35073df727e2ad7e",

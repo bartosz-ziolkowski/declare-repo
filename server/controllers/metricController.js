@@ -1,3 +1,4 @@
+"use server";
 import APIFilters from "@/utils/server/APIFilters";
 import Metric from "@/database/models/metric";
 import { NextResponse } from "next/server";

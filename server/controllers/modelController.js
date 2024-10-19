@@ -1,3 +1,5 @@
+"use server";
+
 import {
   DeleteObjectCommand,
   PutObjectCommand,
@@ -83,29 +85,29 @@ export const getModelDetails = errorHandler(async (req, { params }) => {
     calculationResult: item.calculationResult,
   }));
 
- const domainMetric = await Metric.findOne({ ID: "SM1" });
- let allDomains = await DeclareAndMetric.distinct("calculationResult", {
-   metric: domainMetric._id,
- });
+  const domainMetric = await Metric.findOne({ ID: "SM1" });
+  let allDomains = await DeclareAndMetric.distinct("calculationResult", {
+    metric: domainMetric._id,
+  });
 
- const purposeMetric = await Metric.findOne({ ID: "SM3" });
- let allPurposes = await DeclareAndMetric.distinct("calculationResult", {
-   metric: purposeMetric._id,
- });
+  const purposeMetric = await Metric.findOne({ ID: "SM3" });
+  let allPurposes = await DeclareAndMetric.distinct("calculationResult", {
+    metric: purposeMetric._id,
+  });
 
- const uniqueCaseInsensitive = (arr) => {
-   const lowercaseSet = new Set();
-   return arr.filter((item) => {
-     const lowercase = item.toLowerCase().trim();
-     if (lowercase === "") return false;
-     if (lowercaseSet.has(lowercase)) return false;
-     lowercaseSet.add(lowercase);
-     return true;
-   });
- };
+  const uniqueCaseInsensitive = (arr) => {
+    const lowercaseSet = new Set();
+    return arr.filter((item) => {
+      const lowercase = item.toLowerCase().trim();
+      if (lowercase === "") return false;
+      if (lowercaseSet.has(lowercase)) return false;
+      lowercaseSet.add(lowercase);
+      return true;
+    });
+  };
 
- allDomains = uniqueCaseInsensitive(allDomains);
- allPurposes = uniqueCaseInsensitive(allPurposes);
+  allDomains = uniqueCaseInsensitive(allDomains);
+  allPurposes = uniqueCaseInsensitive(allPurposes);
 
   return NextResponse.json({
     success: true,
