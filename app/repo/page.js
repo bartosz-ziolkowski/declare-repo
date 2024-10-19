@@ -4,15 +4,13 @@ import { signOut, useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import  FormulaModal  from "./_components/formulaModal";
+import FormulaModal from "./_components/formulaModal";
 import Link from "next/link";
 import { MyPagination } from "./_components/myPagination";
 import { useLoadingError } from "@/utils/client/context/loadingErrorContext";
 
 const fetchData = async (type, queryParams) => {
-  const res = await fetch(
-    `${process.env.API_URI}/api/repo/${type}?${queryParams}`
-  );
+  const res = await fetch(`/api/repo/${type}?${queryParams}`);
   const data = await res.json();
 
   if (!res.ok) {
@@ -39,9 +37,9 @@ export default function Repo() {
   const { data: session } = useSession();
   const [resPerPage, setResPerPage] = useState(6);
   const [totalItems, setTotalItems] = useState(0);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentFormula, setCurrentFormula] = useState('');
-  const [currentMetricName, setCurrentMetricName] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentFormula, setCurrentFormula] = useState("");
+  const [currentMetricName, setCurrentMetricName] = useState("");
 
   const [filters, setFilters] = useState({
     name: "",
@@ -64,11 +62,11 @@ export default function Repo() {
     });
   };
 
-   const openModal = (formula, name) => {
-  setCurrentFormula(formula);
-  setCurrentMetricName(name);
-  setIsModalOpen(true);
-};
+  const openModal = (formula, name) => {
+    setCurrentFormula(formula);
+    setCurrentMetricName(name);
+    setIsModalOpen(true);
+  };
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -597,14 +595,14 @@ export default function Repo() {
                         <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words w-1/5">
                           {item.description}
                         </td>
-                       <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words">
-  <button 
-   onClick={() => openModal(item.formula, item.name)}
-    className="text-white bg-indigo hover:text-black hover:bg-orange font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
-  >
-    Open
-  </button>
-</td>
+                        <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words">
+                          <button
+                            onClick={() => openModal(item.formula, item.name)}
+                            className="text-white bg-indigo hover:text-black hover:bg-orange font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
+                          >
+                            Open
+                          </button>
+                        </td>
                         <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words">
                           {item.reference?.url ? (
                             <div className="flex items-center">
@@ -680,12 +678,12 @@ export default function Repo() {
         totalItemsCount={totalItems}
         setCurrentPage={handlePageChange}
       />
-      <FormulaModal 
-  isOpen={isModalOpen} 
-  onClose={() => setIsModalOpen(false)} 
-  formula={currentFormula} 
-  title={currentMetricName}
-/>
+      <FormulaModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        formula={currentFormula}
+        title={currentMetricName}
+      />
     </div>
   );
 }
