@@ -9,7 +9,7 @@ import DeleteConfirmationModal from "@/components/deleteModal";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
-import { useLoadingError } from "@/utils/client/context/LoadingErrorContext";
+import { useLoadingError } from "@/utils/client/context/loadingErrorContext";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 

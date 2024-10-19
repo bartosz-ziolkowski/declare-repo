@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useLoadingError } from "@/utils/client/context/LoadingErrorContext";
+import { useLoadingError } from "@/utils/client/context/loadingErrorContext";
 import Loading from "@/components/loading";
 import Error from "@/components/error";
 

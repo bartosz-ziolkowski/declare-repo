@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { toast } from "react-hot-toast";
-import { useLoadingError } from "@/utils/client/context/LoadingErrorContext";
+import { useLoadingError } from "@/utils/client/context/loadingErrorContext";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 

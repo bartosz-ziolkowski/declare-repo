@@ -1,14 +1,15 @@
 import {
+  DeleteObjectCommand,
   PutObjectCommand,
   S3Client,
-  DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
-import { calculateMetrics } from "@/utils/server/metrics";
+
 import APIFilters from "../../utils/server/APIFilters";
+import DeclareAndMetric from "@/database/models/declareAndMetric";
 import DeclareModel from "../../database/models/declareModel";
 import Metric from "@/database/models/metric";
-import DeclareAndMetric from "@/database/models/declareAndMetric";
 import { NextResponse } from "next/server";
+import { calculateMetrics } from "@/utils/server/metrics";
 import { errorHandler } from "../../utils/server/errorHandler";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getToken } from "next-auth/jwt";
@@ -158,7 +159,7 @@ export const newDeclareModel = errorHandler(async (req) => {
 const s3Client = new S3Client({
   region: process.env.AWS_BUCKET_REGION,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY,
+    accessKeyId: process.env.MY_AWS_ACCESS_KEY,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });

@@ -1,14 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
-import { useLoadingError } from "@/utils/client/context/LoadingErrorContext";
-import DeleteConfirmationModal from "@/components/deleteModal";
-import { toast } from "react-hot-toast";
 import "katex/dist/katex.min.css";
+
+import { useEffect, useState } from "react";
+
 import { BlockMath } from "react-katex";
+import DeleteConfirmationModal from "@/components/deleteModal";
+import Link from "next/link";
+import { toast } from "react-hot-toast";
+import { useLoadingError } from "@/utils/client/context/loadingErrorContext";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 function Metric({ params }) {
   const router = useRouter();

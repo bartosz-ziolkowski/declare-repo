@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useLoadingError } from "@/utils/client/context/LoadingErrorContext";
+import { useLoadingError } from "@/utils/client/context/loadingErrorContext";
 
 export default function Error({ error }) {
   const router = useRouter();

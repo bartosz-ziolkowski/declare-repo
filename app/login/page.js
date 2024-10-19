@@ -1,13 +1,14 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { setIsUserLoggedIn, setUser } from "@/utils/redux/features/userSlice";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+
+import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
-import { setUser, setIsUserLoggedIn } from "@/utils/redux/features/userSlice";
-import { useLoadingError } from "@/utils/client/context/LoadingErrorContext";
+import { useLoadingError } from "@/utils/client/context/loadingErrorContext";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const { data: session, status } = useSession();
