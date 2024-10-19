@@ -27,7 +27,7 @@ export default function EditDeclareModel({ params }) {
 
       setIsLoading(true);
       try {
-        const response = await fetch(`${process.env.API_URI}/api/repo/models/${params.id}`);
+        const response = await fetch(`/api/repo/models/${params.id}`);
         const data = await response.json();
 
         if (!response.ok) {
@@ -112,7 +112,7 @@ export default function EditDeclareModel({ params }) {
           };
         }
 
-        const response = await fetch(`${process.env.API_URI}/api/repo/models/${params.id}`, {
+        const response = await fetch(`/api/repo/models/${params.id}`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",

@@ -28,7 +28,7 @@ export default function EditMetric({ params }) {
 
       try {
         setIsLoading(true);
-        const response = await fetch(`${process.env.API_URI}/api/repo/metrics/${params.id}`);
+        const response = await fetch(`/api/repo/metrics/${params.id}`);
         const data = await response.json();
 
         if (!response.ok) {
@@ -115,7 +115,7 @@ export default function EditMetric({ params }) {
           };
         }
 
-        const response = await fetch(`${process.env.API_URI}/api/repo/metrics/${params.id}`, {
+        const response = await fetch(`/api/repo/metrics/${params.id}`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",

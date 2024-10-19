@@ -26,7 +26,7 @@ function Metric({ params }) {
 
       setIsLoading(true);
       try {
-        const response = await fetch(`${process.env.API_URI}/api/repo/metrics/${params.id}`);
+        const response = await fetch(`/api/repo/metrics/${params.id}`);
         const data = await response.json();
 
         if (!response.ok) {
@@ -58,7 +58,7 @@ function Metric({ params }) {
     setShowDeleteModal(false);
     setIsLoading(true);
     try {
-      const response = await fetch(`${process.env.API_URI}/api/repo/metrics/${params.id}`, {
+      const response = await fetch(`/api/repo/metrics/${params.id}`, {
         method: "DELETE",
       });
 

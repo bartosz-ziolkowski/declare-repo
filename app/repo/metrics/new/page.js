@@ -80,7 +80,7 @@ export default function CreateMetric() {
           };
         }
 
-        const response = await fetch(`${process.env.API_URI}/api/repo/metrics`, {
+        const response = await fetch(`/api/repo/metrics`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

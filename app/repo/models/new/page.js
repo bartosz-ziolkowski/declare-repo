@@ -76,7 +76,7 @@ export default function CreateDeclareModel() {
     formData.append("fileName", fileName);
     formData.append("fileType", fileType);
 
-    const res = await fetch(`${process.env.API_URI}/api/repo/models/upload-file`, {
+    const res = await fetch(`/api/repo/models/upload-file`, {
       method: "POST",
       body: formData,
     });
@@ -125,7 +125,7 @@ export default function CreateDeclareModel() {
           formDataToSend.append("imageUrl", imageUrl);
         }
 
-        const response = await fetch(`${process.env.API_URI}/api/repo/models`, {
+        const response = await fetch(`/api/repo/models`, {
           method: "POST",
           body: formDataToSend,
         });
