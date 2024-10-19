@@ -26,7 +26,8 @@ const geistMono = localFont({
 
 export const metadata = {
   title: "Declare Repository",
-  description: "Repository of Declare Models and Metrics",
+  description:
+    "repository of declarative process models | metrics | database of declarative models | dataset of declare models | declarative business process models",
 };
 
 export default function RootLayout({ children }) {
@@ -39,7 +40,12 @@ export default function RootLayout({ children }) {
           {" "}
           <GlobalLoadingError />{" "}
           <div className="flex flex-col min-h-screen">
-            <main className={`${dmSans.variable} ${geistSans.variable} ${geistMono.variable} flex-grow antialiased font-sans`}>{children} </main> <Footer />{" "}
+            <main
+              className={`${dmSans.variable} ${geistSans.variable} ${geistMono.variable} flex-grow antialiased font-sans`}
+            >
+              {children}{" "}
+            </main>{" "}
+            <Footer />{" "}
           </div>
         </MyProvider>
       </body>
