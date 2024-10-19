@@ -1,0 +1,46 @@
+{
+  "name": "declare-repo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed": "node -r dotenv/config database/seeder.js"
+  },
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.670.0",
+    "@aws-sdk/s3-request-presigner": "^3.670.0",
+    "@reduxjs/toolkit": "^2.2.8",
+    "@studio-freight/lenis": "^1.0.42",
+    "bcryptjs": "^2.4.3",
+    "bootstrap": "^5.3.3",
+    "dotenv": "^16.4.5",
+    "formidable": "^3.5.1",
+    "framer-motion": "^11.11.7",
+    "gsap": "^3.12.5",
+    "install": "^0.13.0",
+    "katex": "^0.16.11",
+    "mongoose": "^8.7.1",
+    "next": "14.2.15",
+    "next-auth": "^4.24.8",
+    "next-connect": "^1.0.0",
+    "npm": "^10.9.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-hot-toast": "^2.4.1",
+    "react-js-pagination": "^3.0.3",
+    "react-katex": "^3.0.1",
+    "react-redux": "^9.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "22.7.5",
+    "@types/react": "18.3.11",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.15",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1"
+  }
+}
