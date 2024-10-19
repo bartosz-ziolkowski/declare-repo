@@ -10,7 +10,9 @@ import { MyPagination } from "./_components/myPagination";
 import { useLoadingError } from "@/utils/client/context/loadingErrorContext";
 
 const fetchData = async (type, queryParams) => {
-  const res = await fetch(`/api/repo/${type}?${queryParams}`);
+  const res = await fetch(
+    `${process.env.API_URI}/api/repo/${type}?${queryParams}`
+  );
   const data = await res.json();
 
   if (!res.ok) {

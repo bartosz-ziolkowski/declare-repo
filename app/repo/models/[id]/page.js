@@ -34,7 +34,7 @@ const fetchModel = async () => {
 
          setIsLoading(true);
       try {
-        const response = await fetch(`/api/repo/models/${params.id}`);
+        const response = await fetch(`${process.env.API_URI}/api/repo/models/${params.id}`);
         const data = await response.json();
 
         if (!response.ok) {
@@ -102,7 +102,7 @@ const fetchModel = async () => {
     setShowDeleteModal(false);
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/repo/models/${params.id}`, {
+      const response = await fetch(`${process.env.API_URI}/api/repo/models/${params.id}`, {
         method: "DELETE",
       });
 
@@ -145,7 +145,7 @@ const fetchModel = async () => {
       : (applicationDomain === 'custom' ? customDomain : applicationDomain);
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/repo/models/${params.id}/metrics`, {
+      const response = await fetch(`${process.env.API_URI}/api/repo/models/${params.id}/metrics`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
