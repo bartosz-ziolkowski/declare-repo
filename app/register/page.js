@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useRegisterMutation } from "../../utils/redux/api/userAPI";
 import { toast } from "react-hot-toast";
-import { useLoadingError } from "@/utils/client/context/LoadingErrorContext";
+import { useLoadingError } from "@/utils/client/context/loadingErrorContext";
 
 export default function Register() {
   const [user, setUser] = useState({
