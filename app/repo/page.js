@@ -396,12 +396,14 @@ export default function Repo() {
                             key={metric.metricID}
                             className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase"
                           >
-                            <Link
-                              href={`/repo/metrics/${metric.metricId}`}
+                            <button
+                              onClick={() =>
+                                openModal(metric.formula, metric.metricName)
+                              }
                               className="text-blue hover:text-indigo"
                             >
                               {metric.metricID}
-                            </Link>
+                            </button>
                           </th>
                         ))}
                     </>

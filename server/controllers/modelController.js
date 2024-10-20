@@ -374,6 +374,8 @@ export const allModelsAndMetrics = errorHandler(async (req) => {
           $push: {
             metricId: "$metricData._id",
             metricID: "$metricData.ID",
+            metricName: "$metricData.name",
+            formula: "$metricData.formula",
             calculationResult: "$calculationResult",
           },
         },
