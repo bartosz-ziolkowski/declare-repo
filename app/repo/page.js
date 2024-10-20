@@ -195,9 +195,9 @@ export default function Repo() {
               </button>
               <Link
                 href={
-                  displayType === "models"
-                    ? "/repo/models/new"
-                    : "/repo/metrics/new"
+                  displayType === "metrics"
+                    ? "/repo/metrics/new"
+                    : "/repo/models/new"
                 }
                 className="bg-green hover:bg-blue text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center"
               >
