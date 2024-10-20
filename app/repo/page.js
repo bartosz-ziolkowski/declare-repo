@@ -215,7 +215,7 @@ export default function Repo() {
                     d="M12 4v16m8-8H4"
                   />
                 </svg>
-                Add {displayType === "models" ? "Model" : "Metric"}
+                Add {displayType === "metrics" ? "Metric" : "Model"}
               </Link>
               <button
                 onClick={() => signOut()}
@@ -466,75 +466,47 @@ export default function Repo() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                    {data && data.length > 0 ? (
-      data.map((item, index) => (
-                  <tr key={index}>
-                    {displayType === "all" ? (
-                      <>
-                        <td
-                          key={item._id}
-                          className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap"
-                        >
-                          {" "}
-                          <Link
-                            href={`/repo/models/${item._id}`}
-                            className="text-blue hover:text-indigo"
+                {data && data.length > 0 ? (
+                  data.map((item, index) => (
+                    <tr key={index}>
+                      {displayType === "all" ? (
+                        <>
+                          <td
+                            key={item._id}
+                            className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap"
                           >
-                            {item.modelName}
-                          </Link>
-                        </td>
-                       {item.metrics && item.metrics.length > 0 ? (
-            item.metrics.map((metric) => (
-              <td
-                key={`${item._id}-${metric.metricID}`}
-                className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap"
-              >
-                {metric.calculationResult}
-              </td>
-            ))
-          ) : (
-            <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-              No metrics available
-            </td>
-          )}
-                      </>
-                    ) : displayType === "models" ? (
-                      <>
-                        <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
-                          <div className="flex items-center">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="mr-2 h-4 w-4 text-blue-500"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 4.5C8.32 4.5 5.03 7.12 3.24 10.12c-.08.14-.08.31 0 .45C5.03 16.88 8.32 19.5 12 19.5s6.97-2.62 8.76-5.88c.08-.14.08-.31 0-.45C18.97 7.12 15.68 4.5 12 4.5zM12 15a3 3 0 100-6 3 3 0 000 6z"
-                              />
-                            </svg>{" "}
-                            {"  "}
+                            {" "}
                             <Link
                               href={`/repo/models/${item._id}`}
-                              className=" text-blue hover:text-green"
+                              className="text-blue hover:text-indigo"
                             >
-                              {item.name}
+                              {item.modelName}
                             </Link>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words w-1/5">
-                          {" "}
-                          {item.description}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words">
-                          {item.reference?.url ? (
+                          </td>
+                          {item.metrics && item.metrics.length > 0 ? (
+                            item.metrics.map((metric) => (
+                              <td
+                                key={`${item._id}-${metric.metricID}`}
+                                className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap"
+                              >
+                                {metric.calculationResult === ""
+                                  ? "N/A"
+                                  : metric.calculationResult}
+                              </td>
+                            ))
+                          ) : (
+                            <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                              No models available
+                            </td>
+                          )}
+                        </>
+                      ) : displayType === "models" ? (
+                        <>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
                             <div className="flex items-center">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5 mr-2 text-gray-400"
+                                className="mr-2 h-4 w-4 text-blue-500"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -543,102 +515,94 @@ export default function Repo() {
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
                                   strokeWidth={2}
-                                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                  d="M12 4.5C8.32 4.5 5.03 7.12 3.24 10.12c-.08.14-.08.31 0 .45C5.03 16.88 8.32 19.5 12 19.5s6.97-2.62 8.76-5.88c.08-.14.08-.31 0-.45C18.97 7.12 15.68 4.5 12 4.5zM12 15a3 3 0 100-6 3 3 0 000 6z"
                                 />
-                              </svg>
+                              </svg>{" "}
+                              {"  "}
                               <Link
-                                href={`${item.reference.url}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue hover:text-green mr-2"
+                                href={`/repo/models/${item._id}`}
+                                className=" text-blue hover:text-green"
                               >
-                                {item.reference.name || "N/A"}
+                                {item.name}
                               </Link>
                             </div>
-                          ) : (
-                            "N/A"
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap ">
-                          {item.author?.name ? (
-                            <div className="flex items-center">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5 text-gray-400 hover:text-blue-500"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                                />
-                              </svg>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words w-1/5">
+                            {" "}
+                            {item.description}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words">
+                            {item.reference?.url ? (
+                              <div className="flex items-center">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5 mr-2 text-gray-400"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                  />
+                                </svg>
+                                <Link
+                                  href={`${item.reference.url}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue hover:text-green mr-2"
+                                >
+                                  {item.reference.name || "N/A"}
+                                </Link>
+                              </div>
+                            ) : (
+                              "N/A"
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap ">
+                            {item.author?.name ? (
+                              <div className="flex items-center">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5 text-gray-400 hover:text-blue-500"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                  />
+                                </svg>
 
-                              <Link
-                                href={`mailto:${item.author.email}`}
-                                className="hover:text-blue"
-                              >
-                                <span className="ml-2">{item.author.name}</span>
-                              </Link>
-                            </div>
-                          ) : (
-                            item.author || "N/A"
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
-                          {formatDate(item.createdAt)}
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
-                          <div className="flex items-center">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="mr-2 h-4 w-4 text-blue-500"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 4.5C8.32 4.5 5.03 7.12 3.24 10.12c-.08.14-.08.31 0 .45C5.03 16.88 8.32 19.5 12 19.5s6.97-2.62 8.76-5.88c.08-.14.08-.31 0-.45C18.97 7.12 15.68 4.5 12 4.5zM12 15a3 3 0 100-6 3 3 0 000 6z"
-                              />
-                            </svg>{" "}
-                            {"  "}
-                            <Link
-                              href={`/repo/metrics/${item._id}`}
-                              className=" text-blue hover:text-green"
-                            >
-                              {item.ID}
-                            </Link>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words">
-                          {item.name}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words w-1/5">
-                          {item.description}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words">
-                          <button
-                            onClick={() => openModal(item.formula, item.name)}
-                            className="text-white bg-indigo hover:text-black hover:bg-orange font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
-                          >
-                            Open
-                          </button>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words">
-                          {item.reference?.url ? (
+                                <Link
+                                  href={`mailto:${item.author.email}`}
+                                  className="hover:text-blue"
+                                >
+                                  <span className="ml-2">
+                                    {item.author.name}
+                                  </span>
+                                </Link>
+                              </div>
+                            ) : (
+                              item.author || "N/A"
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
+                            {formatDate(item.createdAt)}
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
                             <div className="flex items-center">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5 text-gray-400"
+                                className="mr-2 h-4 w-4 text-blue-500"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -647,64 +611,109 @@ export default function Repo() {
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
                                   strokeWidth={2}
-                                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                  d="M12 4.5C8.32 4.5 5.03 7.12 3.24 10.12c-.08.14-.08.31 0 .45C5.03 16.88 8.32 19.5 12 19.5s6.97-2.62 8.76-5.88c.08-.14.08-.31 0-.45C18.97 7.12 15.68 4.5 12 4.5zM12 15a3 3 0 100-6 3 3 0 000 6z"
                                 />
-                              </svg>
+                              </svg>{" "}
+                              {"  "}
                               <Link
-                                href={`${item.reference.url}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue hover:text-green ml-2"
+                                href={`/repo/metrics/${item._id}`}
+                                className=" text-blue hover:text-green"
                               >
-                                {item.reference.name || "N/A"}
+                                {item.ID}
                               </Link>
                             </div>
-                          ) : (
-                            "N/A"
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
-                          {item.author?.name ? (
-                            <div className="flex items-center">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5 mr-2 text-gray-400 hover:text-blue-500"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                                />
-                              </svg>
-                              <Link
-                                href={`mailto:${item.author.email}`}
-                                className="hover:text-blue"
-                              >
-                                {item.author.name}{" "}
-                              </Link>
-                            </div>
-                          ) : (
-                            "N/A"
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
-                          {formatDate(item.createdAt)}
-                        </td>
-                      </>
-                    )}
-                  </tr>
-                ))
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words">
+                            {item.name}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words w-1/5">
+                            {item.description}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words">
+                            <button
+                              onClick={() => openModal(item.formula, item.name)}
+                              className="text-white bg-indigo hover:text-black hover:bg-orange font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
+                            >
+                              Open
+                            </button>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words">
+                            {item.reference?.url ? (
+                              <div className="flex items-center">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5 text-gray-400"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                  />
+                                </svg>
+                                <Link
+                                  href={`${item.reference.url}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue hover:text-green ml-2"
+                                >
+                                  {item.reference.name || "N/A"}
+                                </Link>
+                              </div>
+                            ) : (
+                              "N/A"
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
+                            {item.author?.name ? (
+                              <div className="flex items-center">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5 mr-2 text-gray-400 hover:text-blue-500"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                  />
+                                </svg>
+                                <Link
+                                  href={`mailto:${item.author.email}`}
+                                  className="hover:text-blue"
+                                >
+                                  {item.author.name}{" "}
+                                </Link>
+                              </div>
+                            ) : (
+                              "N/A"
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
+                            {formatDate(item.createdAt)}
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))
                 ) : (
-      <tr>
-        <td colSpan={displayType === "models" ? 5 : 7} className="px-6 py-4 text-sm text-gray-800 text-center">
-          {displayType === "models" ? "No models found" : "No metrics found"}
-        </td>
-      </tr>
-    ) }
+                  <tr>
+                    <td
+                      colSpan={displayType === "models" ? 5 : 7}
+                      className="px-6 py-4 text-sm text-gray-800 text-center"
+                    >
+                      {displayType === "models"
+                        ? "No models found"
+                        : "No metrics found"}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
