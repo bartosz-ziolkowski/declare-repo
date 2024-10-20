@@ -27,11 +27,10 @@ export const allModels = errorHandler(async (req) => {
     queryStr[key] = value;
   });
 
-  const apiFilters = new APIFilters(DeclareModel.find(), queryStr);
-
-  await apiFilters.search();
-  apiFilters.filter();
-  apiFilters.sort();
+  const apiFilters = new APIFilters(DeclareModel.find(), queryStr)
+    .filter()
+    .sort();
+  apiFilters.search();
 
   const totalCount = await DeclareModel.countDocuments();
 
@@ -39,7 +38,7 @@ export const allModels = errorHandler(async (req) => {
     apiFilters.query.getFilter()
   );
 
-  apiFilters.pagination(resPerPage);
+  apiFilters.paginate(resPerPage);
 
   const models = await apiFilters.query.populate("author");
 
@@ -332,5 +331,81 @@ export const updateModelMetrics = errorHandler(async (req, { params }) => {
   return NextResponse.json({
     success: true,
     message: "Model's metric updated successfully",
+  });
+});
+
+export const allModelsAndMetrics = errorHandler(async (req) => {
+  const { searchParams } = new URL(req.url);
+  const queryStr = {};
+
+  searchParams.forEach((value, key) => {
+    queryStr[key] = value;
+  });
+
+  const page = parseInt(queryStr.page) || 1;
+  const resPerPage = 6;
+  const skip = (page - 1) * resPerPage;
+
+  const pipeline = [
+    {
+      $lookup: {
+        from: "declareModel",
+        localField: "declareModel",
+        foreignField: "_id",
+        as: "modelData",
+      },
+    },
+    { $unwind: "$modelData" },
+    {
+      $lookup: {
+        from: "metric",
+        localField: "metric",
+        foreignField: "_id",
+        as: "metricData",
+      },
+    },
+    { $unwind: "$metricData" },
+    {
+      $group: {
+        _id: "$declareModel",
+        modelName: { $first: "$modelData.name" },
+        modelCreatedAt: { $first: '$modelData.createdAt' },
+        metrics: {
+          $push: {
+            metricId: "$metricData._id",
+            metricID: "$metricData.ID",
+            calculationResult: "$calculationResult",
+          },
+        },
+      },
+    },
+    { $sort: { modelName: 1 } },
+    { $skip: skip },
+    { $limit: resPerPage },
+  ];
+
+  const modelsWithMetrics = await DeclareAndMetric.aggregate(pipeline);
+
+  const totalCountPipeline = [
+    {
+      $group: {
+        _id: "$declareModel",
+      },
+    },
+    {
+      $count: "total",
+    },
+  ];
+  const [totalCountResult] = await DeclareAndMetric.aggregate(
+    totalCountPipeline
+  );
+  const totalCount = totalCountResult ? totalCountResult.total : 0;
+
+  return NextResponse.json({
+    success: true,
+    totalCount,
+    filteredCount: totalCount,
+    resPerPage,
+    modelsWithMetrics,
   });
 });

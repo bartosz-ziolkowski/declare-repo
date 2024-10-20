@@ -49,13 +49,13 @@ export default function CreateDeclareModel() {
     }
 
     if (
-  formData.referenceUrl &&
-  !/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})(\/[-\w\._~:/?#[\]@!$&'()*+,;=]*)*\/?$/.test(
-    formData.referenceUrl
-  )
-) {
-  errors.referenceUrl = "Invalid URL format";
-}
+      formData.referenceUrl &&
+      !/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})(\/[-\w\._~:/?#[\]@!$&'()*+,;=]*)*\/?$/.test(
+        formData.referenceUrl
+      )
+    ) {
+      errors.referenceUrl = "Invalid URL format";
+    }
 
     return errors;
   };
@@ -252,7 +252,7 @@ export default function CreateDeclareModel() {
               >
                 Content (.decl file){" "}
                 <span className="text-gray-400">
-                  (optional, cannot add nor edit later)
+                  (required for metrics calculation)
                 </span>
               </label>
               <input
@@ -274,9 +274,6 @@ export default function CreateDeclareModel() {
                 className="block text-sm font-medium text-gray-700"
               >
                 Text Representation (.txt file){" "}
-                <span className="text-gray-400">
-                  (optional, cannot add nor edit later)
-                </span>
               </label>
               <input
                 type="file"
@@ -297,9 +294,6 @@ export default function CreateDeclareModel() {
                 className="block text-sm font-medium text-gray-700"
               >
                 Image{" "}
-                <span className="text-gray-400">
-                  (optional, cannot add nor edit later)
-                </span>
               </label>
               <input
                 type="file"

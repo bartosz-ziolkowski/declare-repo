@@ -1,10 +1,11 @@
 import "./globals.css";
 
+import { Analytics } from '@vercel/analytics/react';
 import { DM_Sans } from "next/font/google";
-import localFont from "next/font/local";
-import MyProvider from "../utils/client/myProvider";
-import GlobalLoadingError from "@/components/globalLoadingError";
 import Footer from "@/components/footer";
+import GlobalLoadingError from "@/components/globalLoadingError";
+import MyProvider from "../utils/client/myProvider";
+import localFont from "next/font/local";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -27,7 +28,7 @@ const geistMono = localFont({
 export const metadata = {
   title: "Declare Repository",
   description:
-    "repository of declarative process models | metrics | database of declarative models | dataset of declare models | declarative business process models",
+    "Repository of Declarative Process Models and Metrics | Database of Declarative Models | Dataset of Declare Models | Declarative Business Process Models",
 };
 
 export default function RootLayout({ children }) {
@@ -44,6 +45,7 @@ export default function RootLayout({ children }) {
               className={`${dmSans.variable} ${geistSans.variable} ${geistMono.variable} flex-grow antialiased font-sans`}
             >
               {children}{" "}
+               <Analytics />
             </main>{" "}
             <Footer />{" "}
           </div>

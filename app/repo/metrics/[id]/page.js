@@ -113,7 +113,7 @@ function Metric({ params }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="mr-11">
             <p className="font-semibold">Description:</p>
-            <p>{metric?.description || "Not specified"}</p>
+            <p>{metric?.description || "N/A"}</p>
           </div>
           <div>
             <p className="font-semibold">Formula:</p>

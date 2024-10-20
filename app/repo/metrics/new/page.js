@@ -184,7 +184,7 @@ export default function CreateMetric() {
                 htmlFor="formula"
                 className="block text-sm font-medium text-gray-700"
               >
-                Formula <span className="text-gray-400">(optional)</span>
+                Formula
               </label>
               <input
                 type="text"
@@ -201,7 +201,7 @@ export default function CreateMetric() {
                 htmlFor="referenceName"
                 className="block text-sm font-medium text-gray-700"
               >
-                Reference Name <span className="text-gray-400">(optional)</span>
+                Reference Name 
               </label>
               <input
                 type="text"
@@ -218,7 +218,7 @@ export default function CreateMetric() {
                 htmlFor="referenceUrl"
                 className="block text-sm font-medium text-gray-700"
               >
-                Reference URL <span className="text-gray-400">(optional)</span>
+                Reference URL
               </label>
               <input
                 type="text"

@@ -11,18 +11,15 @@ export const allMetrics = errorHandler(async (req) => {
   const resPerPage = 6;
 
   const { searchParams } = new URL(req.url);
-
   const queryStr = {};
 
   searchParams.forEach((value, key) => {
     queryStr[key] = value;
   });
 
-  const apiFilters = new APIFilters(Metric.find(), queryStr);
+  const apiFilters = new APIFilters(Metric.find(), queryStr).filter().sort();
 
-  await apiFilters.search();
-  apiFilters.filter();
-  apiFilters.sort();
+  apiFilters.search();
 
   const totalCount = await Metric.countDocuments();
 
@@ -30,7 +27,7 @@ export const allMetrics = errorHandler(async (req) => {
     apiFilters.query.getFilter()
   );
 
-  apiFilters.pagination(resPerPage);
+  apiFilters.paginate(resPerPage);
 
   const metrics = await apiFilters.query.populate("author");
 

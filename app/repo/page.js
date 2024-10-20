@@ -21,14 +21,18 @@ const fetchData = async (type, queryParams) => {
 };
 
 function formatDate(dateString) {
+  if (!dateString) return null;
+
   const date = new Date(dateString);
+  if (isNaN(date)) return null;
+
   return date.toISOString().split("T")[0];
 }
 
 export default function Repo() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [displayType, setDisplayType] = useState("models");
+  const [displayType, setDisplayType] = useState("all");
   const [data, setData] = useState(null);
   const { setIsLoading, setIsError } = useLoadingError();
   const [currentPage, setCurrentPage] = useState(
@@ -87,6 +91,8 @@ export default function Repo() {
         setData(result.models);
       } else if (displayType === "metrics") {
         setData(result.metrics);
+      } else if (displayType === "all") {
+        setData(result.modelsWithMetrics);
       }
 
       setTotalItems(result.filteredCount);
@@ -104,17 +110,19 @@ export default function Repo() {
     loadData();
   }, [loadData]);
 
-  const toggleDisplayType = () => {
-    const newType = displayType === "models" ? "metrics" : "models";
+  const toggleDisplayType = (newType) => {
     setDisplayType(newType);
     setCurrentPage(1);
-    setFilters({
-      name: "",
-      author: "",
-      createdAtStart: "",
-      createdAtEnd: "",
-      sort: "",
-    });
+
+    if (["models", "metrics"].includes(newType)) {
+      setFilters({
+        name: "",
+        author: "",
+        createdAtStart: "",
+        createdAtEnd: "",
+        sort: "",
+      });
+    }
   };
 
   const handlePageChange = (page) => {
@@ -125,37 +133,47 @@ export default function Repo() {
   };
 
   return (
-    <div className="flex flex-col items-center mt-10 gap-10">
-      <div className="w-full flex justify-between items-center px-4">
-        <h1 className=" text-2xl xl:text-3xl  font-bold text-blue-600 mb-6">
-          {displayType === "models" ? "Declare Models" : "Metrics"}
-        </h1>
-        <div className="flex items-center gap-4">
+    <div className="flex flex-col items-center gap-10">
+      <div className="w-full flex justify-between items-center px-4 py-4 bg-white shadow-md rounded-lg">
+        <div className="flex space-x-2">
+          <button
+            onClick={() => toggleDisplayType("all")}
+            className={`${
+              displayType === "all"
+                ? "bg-orange text-black"
+                : "bg-blue hover:bg-indigo text-white"
+            }  font-bold py-2 px-4 rounded transition duration-300 ease-in-out`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => toggleDisplayType("models")}
+            className={`${
+              displayType === "models"
+                ? "bg-orange text-black"
+                : "bg-blue hover:bg-indigo text-white"
+            }  font-bold py-2 px-4 rounded transition duration-300 ease-in-out`}
+          >
+            Models
+          </button>
+          <button
+            onClick={() => toggleDisplayType("metrics")}
+            className={`${
+              displayType === "metrics"
+                ? "bg-orange text-black"
+                : "bg-blue hover:bg-indigo text-white"
+            }  font-bold py-2 px-4 rounded transition duration-300 ease-in-out`}
+          >
+            Metrics
+          </button>
+        </div>
+
+        <div className="flex items-center space-x-4">
           {session ? (
             <>
-              <span className="text-gray-700">
-                Welcome, {session.user.name}
+              <span className="text-gray-700 font-semibold">
+                Welcome, {session.user.name.split(" ")[0]}
               </span>
-              <button
-                onClick={toggleDisplayType}
-                className="bg-blue hover:bg-green text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-                  />
-                </svg>
-                Switch to {displayType === "models" ? "Metrics" : "Models"}
-              </button>
               <button
                 onClick={() => router.push("/")}
                 className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center"
@@ -197,7 +215,7 @@ export default function Repo() {
                     d="M12 4v16m8-8H4"
                   />
                 </svg>
-                Add New {displayType === "models" ? "Model" : "Metric"}
+                Add {displayType === "models" ? "Model" : "Metric"}
               </Link>
               <button
                 onClick={() => signOut()}
@@ -221,61 +239,22 @@ export default function Repo() {
               </button>
             </>
           ) : (
-            <>
-              <button
-                onClick={toggleDisplayType}
-                className="bg-blue hover:bg-green text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-                  />
-                </svg>
-                Switch to {displayType === "models" ? "Metrics" : "Models"}
-              </button>
-              <button
-                onClick={() => router.push("/")}
-                className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="w-5 h-5 mr-2"
-                >
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                </svg>
-                Home
-              </button>
-              <Link
-                href="/login"
-                className="bg-green hover:bg-blue text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center"
-              >
-                Sign In
-              </Link>
-            </>
+            <Link
+              href="/login"
+              className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center"
+            >
+              Sign In
+            </Link>
           )}
         </div>
       </div>
-      <p className="max-w-2xl text-center text-gray-700 bg-white shadow-md rounded-lg p-6 leading-relaxed">
-        This table displays the current list of{" "}
-        {displayType === "models" ? "Declare Process Models" : "Metrics"} in the
-        system.
-      </p>
+      <h2 className="text-4xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue to-indigo animate-pulse">
+        {displayType === "models"
+          ? "Declare Models"
+          : displayType === "metrics"
+          ? "Metrics"
+          : "Repository"}
+      </h2>
       <div className="w-full max-w-4xl mx-auto mb-8">
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
           <div className="p-4">
@@ -384,7 +363,28 @@ export default function Repo() {
             <table className="min-w-full divide-y divide-gray-200 bg-white">
               <thead className="bg-gray-50">
                 <tr>
-                  {displayType === "models" ? (
+                  {displayType === "all" ? (
+                    <>
+                      <th className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase">
+                        Model Name
+                      </th>
+                      {data &&
+                        data[0]?.metrics &&
+                        data[0].metrics.map((metric) => (
+                          <th
+                            key={metric.metricID}
+                            className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase"
+                          >
+                            <Link
+                              href={`/repo/metrics/${metric.metricId}`}
+                              className="text-blue hover:text-indigo"
+                            >
+                              {metric.metricID}
+                            </Link>
+                          </th>
+                        ))}
+                    </>
+                  ) : displayType === "models" ? (
                     <>
                       <th
                         scope="col"
@@ -466,9 +466,39 @@ export default function Repo() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {data?.map((item, index) => (
+                    {data && data.length > 0 ? (
+      data.map((item, index) => (
                   <tr key={index}>
-                    {displayType === "models" ? (
+                    {displayType === "all" ? (
+                      <>
+                        <td
+                          key={item._id}
+                          className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap"
+                        >
+                          {" "}
+                          <Link
+                            href={`/repo/models/${item._id}`}
+                            className="text-blue hover:text-indigo"
+                          >
+                            {item.modelName}
+                          </Link>
+                        </td>
+                       {item.metrics && item.metrics.length > 0 ? (
+            item.metrics.map((metric) => (
+              <td
+                key={`${item._id}-${metric.metricID}`}
+                className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap"
+              >
+                {metric.calculationResult}
+              </td>
+            ))
+          ) : (
+            <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+              No metrics available
+            </td>
+          )}
+                      </>
+                    ) : displayType === "models" ? (
                       <>
                         <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
                           <div className="flex items-center">
@@ -555,7 +585,7 @@ export default function Repo() {
                               </Link>
                             </div>
                           ) : (
-                            item.author || "Not specified"
+                            item.author || "N/A"
                           )}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
@@ -658,7 +688,7 @@ export default function Repo() {
                               </Link>
                             </div>
                           ) : (
-                            "Not specified"
+                            "N/A"
                           )}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
@@ -667,7 +697,14 @@ export default function Repo() {
                       </>
                     )}
                   </tr>
-                ))}
+                ))
+                ) : (
+      <tr>
+        <td colSpan={displayType === "models" ? 5 : 7} className="px-6 py-4 text-sm text-gray-800 text-center">
+          {displayType === "models" ? "No models found" : "No metrics found"}
+        </td>
+      </tr>
+    ) }
               </tbody>
             </table>
           </div>

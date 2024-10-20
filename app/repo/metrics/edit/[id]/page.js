@@ -194,7 +194,7 @@ export default function EditMetric({ params }) {
                 htmlFor="formula"
                 className="block text-sm font-medium text-gray-700"
               >
-                Formula <span className="text-gray-400">(optional, use LaTeX syntax for a math formula)</span>
+                Formula 
               </label>
               <input
                 type="text"
@@ -214,7 +214,7 @@ export default function EditMetric({ params }) {
                 htmlFor="referenceName"
                 className="block text-sm font-medium text-gray-700"
               >
-                Reference Name <span className="text-gray-400">(optional)</span>
+                Reference Name
               </label>
               <input
                 type="text"
@@ -231,7 +231,7 @@ export default function EditMetric({ params }) {
                 htmlFor="referenceUrl"
                 className="block text-sm font-medium text-gray-700"
               >
-                Reference URL <span className="text-gray-400">(optional)</span>
+                Reference URL 
               </label>
               <input
                 type="text"
