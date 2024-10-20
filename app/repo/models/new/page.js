@@ -252,7 +252,16 @@ export default function CreateDeclareModel() {
               >
                 Content (.decl file){" "}
                 <span className="text-gray-400">
-                  (required for metrics calculation)
+                  (required for metrics calculation, see{" "}
+                  <Link
+                    className="text-blue hover:text-indigo"
+                    href="https://rulemining.org/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    RuM
+                  </Link>
+                  )
                 </span>
               </label>
               <input
