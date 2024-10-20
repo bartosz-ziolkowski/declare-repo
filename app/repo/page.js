@@ -241,7 +241,7 @@ export default function Repo() {
           ) : (
             <Link
               href="/login"
-              className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center"
+              className="bg-green hover:bg-blue text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center"
             >
               Sign In
             </Link>
