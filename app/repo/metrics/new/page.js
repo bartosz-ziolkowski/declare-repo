@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { useLoadingError } from "@/utils/client/context/loadingErrorContext";
 import { useRouter } from "next/navigation";
@@ -184,7 +184,19 @@ export default function CreateMetric() {
                 htmlFor="formula"
                 className="block text-sm font-medium text-gray-700"
               >
-                Formula
+                Formula{" "}
+                <span className="text-xs text-gray-500">
+                  (use{" "}
+                  <Link
+                    href="https://www.quicklatex.com/"
+                    className="text-blue hover:text-indigo"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    LaTeX
+                  </Link>{" "}
+                  notation)
+                </span>
               </label>
               <input
                 type="text"
@@ -201,7 +213,7 @@ export default function CreateMetric() {
                 htmlFor="referenceName"
                 className="block text-sm font-medium text-gray-700"
               >
-                Reference Name 
+                Reference Name
               </label>
               <input
                 type="text"

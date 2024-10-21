@@ -47,7 +47,7 @@ export default function EditMetric({ params }) {
           referenceUrl: data.metric.reference?.url || "",
         });
       } catch (err) {
-         setIsError(err);
+        setIsError(err);
       } finally {
         setIsLoading(false);
       }
@@ -59,7 +59,6 @@ export default function EditMetric({ params }) {
       toast.error("You are not signed in");
       router.push("/login");
     }
-
   }, [params.id, status, session, router]);
 
   const handleChange = (e) => {
@@ -128,7 +127,7 @@ export default function EditMetric({ params }) {
           router.push(`/repo/metrics/${params.id}`);
         } else {
           const data = await response.json();
-         toast.error(data.message);
+          toast.error(data.message);
         }
       } catch (error) {
         setIsError(error);
@@ -194,7 +193,19 @@ export default function EditMetric({ params }) {
                 htmlFor="formula"
                 className="block text-sm font-medium text-gray-700"
               >
-                Formula 
+                Formula{" "}
+                <span className="text-xs text-gray-500">
+                  (use{" "}
+                  <Link
+                    href="https://www.quicklatex.com/"
+                    className="text-blue hover:text-indigo"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    LaTeX
+                  </Link>{" "}
+                  notation)
+                </span>
               </label>
               <input
                 type="text"
@@ -231,7 +242,7 @@ export default function EditMetric({ params }) {
                 htmlFor="referenceUrl"
                 className="block text-sm font-medium text-gray-700"
               >
-                Reference URL 
+                Reference URL
               </label>
               <input
                 type="text"
@@ -252,24 +263,24 @@ export default function EditMetric({ params }) {
               <p className="mt-2 text-sm text-red-600">{errors.reference}</p>
             )}
 
-       <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center">
               <p className="text-sm text-gray-500">
                 <span className="text-red-500">*</span> Indicates required field
               </p>
               <div>
-              <Link
-                href={`/repo/metrics/${params.id}`}
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-3"
-              >
-                Cancel
-              </Link>
-              <button
-                type="submit"
-                disabled={isSubmitting || status === "unauthenticated"}
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo hover:bg-green focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                {isSubmitting ? "Updating..." : "Update Metric"}
-               </button>
+                <Link
+                  href={`/repo/metrics/${params.id}`}
+                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-3"
+                >
+                  Cancel
+                </Link>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || status === "unauthenticated"}
+                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo hover:bg-green focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  {isSubmitting ? "Updating..." : "Update Metric"}
+                </button>
               </div>
             </div>
           </form>
