@@ -755,6 +755,7 @@ export default function Repo() {
       <FormulaModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        id={currentMetricId}
         formula={currentFormula}
         title={currentMetricName}
       />
