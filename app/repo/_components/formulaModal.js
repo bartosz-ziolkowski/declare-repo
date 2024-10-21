@@ -2,6 +2,7 @@ import "katex/dist/katex.min.css";
 
 import { BlockMath, InlineMath } from "react-katex";
 
+import Link from "next/link";
 import React from "react";
 
 const splitFormula = (formula) => {
@@ -47,7 +48,7 @@ const FormulaModal = ({ isOpen, onClose, id, formula, title }) => {
     >
       <div className="relative bg-white rounded-lg shadow-xl p-6 max-w-[70%] max-h-[90vh] overflow-y-auto">
         <div className="flex flex-col items-center">
-          <Link href={`/repo/metrics/${id}`} className="text-xl font-semibold text-gray-900 mb-4">
+          <Link href={`/repo/metrics/${id}`} className="text-xl font-semibold text-blue hover:text-indigo mb-4">
             {title || "Formula"}
           </Link>
           <div className="overflow-hidden text-center mb-6">
