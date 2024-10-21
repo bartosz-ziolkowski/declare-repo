@@ -1,6 +1,8 @@
-import React from "react";
 import "katex/dist/katex.min.css";
+
 import { BlockMath, InlineMath } from "react-katex";
+
+import React from "react";
 
 const splitFormula = (formula) => {
   const parts = formula.split(/(\$\$.*?\$\$)/);
@@ -12,7 +14,7 @@ const splitFormula = (formula) => {
   });
 };
 
-const FormulaModal = ({ isOpen, onClose, formula, title }) => {
+const FormulaModal = ({ isOpen, onClose, id, formula, title }) => {
   if (!isOpen) return null;
 
   const cleanFormula = formula.replace(/^\$\$|\$\$$/g, "");
@@ -45,9 +47,9 @@ const FormulaModal = ({ isOpen, onClose, formula, title }) => {
     >
       <div className="relative bg-white rounded-lg shadow-xl p-6 max-w-[70%] max-h-[90vh] overflow-y-auto">
         <div className="flex flex-col items-center">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">
+          <Link href={`/repo/metrics/${id}`} className="text-xl font-semibold text-gray-900 mb-4">
             {title || "Formula"}
-          </h3>
+          </Link>
           <div className="overflow-hidden text-center mb-6">
             {renderFormula()}
           </div>

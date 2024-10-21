@@ -44,6 +44,7 @@ export default function Repo() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentFormula, setCurrentFormula] = useState("");
   const [currentMetricName, setCurrentMetricName] = useState("");
+    const [currentMetricId, setCurrentMetricId] = useState("");
 
   const [filters, setFilters] = useState({
     name: "",
@@ -66,8 +67,9 @@ export default function Repo() {
     });
   };
 
-  const openModal = (formula, name) => {
+  const openModal = (id, formula, name) => {
     setCurrentFormula(formula);
+    setCurrentMetricId(id);
     setCurrentMetricName(name);
     setIsModalOpen(true);
   };
@@ -398,7 +400,10 @@ export default function Repo() {
                           >
                             <button
                               onClick={() =>
-                                openModal(metric.formula, metric.metricName)
+                                openModal(
+                                  metric.metricId, metric.formula,
+                                  metric.metricName
+                                )
                               }
                               className="text-blue hover:text-indigo"
                             >
@@ -654,7 +659,7 @@ export default function Repo() {
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words">
                             <button
-                              onClick={() => openModal(item.formula, item.name)}
+                              onClick={() => openModal(item._id, item.formula, item.name)}
                               className="text-white bg-indigo hover:text-black hover:bg-orange font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
                             >
                               Open
