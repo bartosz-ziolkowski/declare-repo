@@ -179,24 +179,31 @@ export default function CreateMetric() {
                 </p>
               )}
             </div>
-            <div>
+           <div>
               <label
                 htmlFor="formula"
                 className="block text-sm font-medium text-gray-700"
               >
                 Formula{" "}
-                <span className="text-xs text-gray-500">
-                  (use{" "}
-                  <Link
-                    href="https://www.quicklatex.com/"
-                    className="text-blue hover:text-indigo"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    LaTeX
-                  </Link>{" "}
-                  notation)
-                </span>
+                 <span className="text-xs text-gray-500">
+      (use{" "}
+      <Link
+        href="https://www.quicklatex.com/"
+        className="text-blue hover:text-indigo"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        LaTeX
+      </Link>{" "}
+      notation and predefined{" "}
+      <Link
+        href="/repo/index"
+        className="text-blue hover:text-indigo"
+      >
+        symbols
+      </Link>
+      )
+    </span>
               </label>
               <input
                 type="text"
@@ -204,10 +211,10 @@ export default function CreateMetric() {
                 id="formula"
                 value={formData.formula}
                 onChange={handleChange}
+                placeholder="e.g. \text{Activities}(D) =\left|A\right|"
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
-
             <div>
               <label
                 htmlFor="referenceName"

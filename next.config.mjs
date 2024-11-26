@@ -4,6 +4,7 @@ const nextConfig = {
     NEXT_PUBLIC_API_URI: process.env.API_URI,
     NEXT_PUBLIC_AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME,
   },
+  transpilePackages: ['react-latex-next'],
   images: {
     remotePatterns: [
       {

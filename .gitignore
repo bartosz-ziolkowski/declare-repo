@@ -6,6 +6,10 @@
 .pnp.js
 .yarn/install-state.gz
 
+to-do.txt
+server/ltlf_checker.py
+server/black.js
+
 # testing
 /coverage
 

@@ -6,6 +6,8 @@ import { NextResponse } from "next/server";
 import { errorHandler } from "@/utils/server/errorHandler";
 import { getToken } from "next-auth/jwt";
 import mongoose from "mongoose";
+import { translateFormula } from "@/utils/server/AImodel";
+
 
 export const allMetrics = errorHandler(async (req) => {
   const resPerPage = 6;
@@ -39,6 +41,8 @@ export const allMetrics = errorHandler(async (req) => {
     metrics,
   });
 });
+
+
 
 export const getMetricDetails = errorHandler(async (req, { params }) => {
   const { id } = params;
@@ -106,10 +110,14 @@ export const updateMetricDetails = errorHandler(async (req, { params }) => {
 export const newMetric = errorHandler(async (req) => {
   const body = await req.json();
 
-  const newMetric = await Metric.create(body);
+  const formula = translateFormula(body.formula);
+  //console.log(formula);
+
+  //const newMetric = await Metric.create(body);
 
   return NextResponse.json({ success: true });
 });
+
 
 export const deleteMetric = errorHandler(async (req, { params }) => {
   const { id } = params;

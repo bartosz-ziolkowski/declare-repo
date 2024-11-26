@@ -4,7 +4,7 @@ import "katex/dist/katex.min.css";
 
 import { useEffect, useState } from "react";
 
-import { BlockMath } from "react-katex";
+import { BlockMath, InlineMath } from "react-katex";
 import DeleteConfirmationModal from "@/components/deleteModal";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
@@ -115,16 +115,34 @@ function Metric({ params }) {
             <p className="font-semibold">Description:</p>
             <p>{metric?.description || "N/A"}</p>
           </div>
-          <div>
-            <p className="font-semibold">Formula:</p>
-            <p className="whitespace-normal">
-              {metric?.formula ? <BlockMath
-                math={
-                  metric?.formula.replace(/^\$\$|\$\$$/g, "") 
-                }
-              /> : "Not specified"}
-              
-            </p>
+           <div>
+            <p className="font-semibold">Reference:</p>
+            {metric?.reference ? (
+              <Link
+                href={`${metric?.reference.url}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center text-blue hover:text-green hover:underline"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="mr-1 h-4 w-4 text-blue-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4.5C8.32 4.5 5.03 7.12 3.24 10.12c-.08.14-.08.31 0 .45C5.03 16.88 8.32 19.5 12 19.5s6.97-2.62 8.76-5.88c.08-.14.08-.31 0-.45C18.97 7.12 15.68 4.5 12 4.5zM12 15a3 3 0 100-6 3 3 0 000 6z"
+                  />
+                </svg>{" "}
+                {metric?.reference.name}
+              </Link>
+            ) : (
+              <p>No reference provided</p>
+            )}
           </div>
           <div>
             <p className="font-semibold">Author:</p>
@@ -159,35 +177,25 @@ function Metric({ params }) {
             <p className="font-semibold">Created At:</p>
             <p>{new Date(metric?.createdAt).toLocaleString()}</p>
           </div>
-          <div>
-            <p className="font-semibold">Reference:</p>
-            {metric?.reference ? (
-              <Link
-                href={`${metric?.reference.url}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center text-blue hover:text-green hover:underline"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="mr-1 h-4 w-4 text-blue-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4.5C8.32 4.5 5.03 7.12 3.24 10.12c-.08.14-.08.31 0 .45C5.03 16.88 8.32 19.5 12 19.5s6.97-2.62 8.76-5.88c.08-.14.08-.31 0-.45C18.97 7.12 15.68 4.5 12 4.5zM12 15a3 3 0 100-6 3 3 0 000 6z"
-                  />
-                </svg>{" "}
-                {metric?.reference.name}
-              </Link>
-            ) : (
-              <p>No reference provided</p>
-            )}
-          </div>
+                 <div className="md:col-span-2">
+  <p className="font-semibold">How to compute:</p>
+  <p className="overflow-x-auto whitespace-normal h-auto">
+    {metric?.formula ? (
+      <span className="katex-wrapper block">
+        <InlineMath
+          math={metric?.formula}
+          style={{
+            whiteSpace: 'normal',
+            wordWrap: 'break-word',
+            overflow: 'hidden'
+          }}
+        />
+      </span>
+    ) : (
+      "Not specified"
+    )}
+  </p>
+</div>
         </div>
       </div>
 

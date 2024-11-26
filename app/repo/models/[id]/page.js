@@ -14,471 +14,633 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 const DeclareModel = ({ params }) => {
-  const router = useRouter();
-  const { data: session, status: sessionStatus } = useSession();
-  const [model, setModel] = useState(null);
-  const { setIsLoading, setIsError } = useLoadingError();
-  const [isAuthor, setIsAuthor] = useState(false);
-  const [textRepContent, setTextRepContent] = useState("");
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [metrics, setMetrics] = useState([]);
-  const [purpose, setPurpose] = useState("");
-  const [customPurpose, setCustomPurpose] = useState("");
-  const [applicationDomain, setApplicationDomain] = useState("");
-  const [customDomain, setCustomDomain] = useState("");
-  const [allDomains, setAllDomains] = useState([]);
-const [allPurposes, setAllPurposes] = useState([]);
+	const router = useRouter();
+	const { data: session, status: sessionStatus } = useSession();
+	const [model, setModel] = useState(null);
+	const { setIsLoading, setIsError } = useLoadingError();
+	const [isAuthor, setIsAuthor] = useState(false);
+	const [textRepContent, setTextRepContent] = useState("");
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [metrics, setMetrics] = useState([]);
+	const [purpose, setPurpose] = useState("");
+	const [customPurpose, setCustomPurpose] = useState("");
+	const [applicationDomain, setApplicationDomain] = useState("");
+	const [customDomain, setCustomDomain] = useState("");
+	const [allDomains, setAllDomains] = useState([]);
+	const [allPurposes, setAllPurposes] = useState([]);
 
-const fetchModel = async () => {
-      if (!params.id) return;
+	const fetchModel = async () => {
+		if (!params.id) return;
 
-         setIsLoading(true);
-      try {
-        const response = await fetch(`/api/repo/models/${params.id}`);
-        const data = await response.json();
+		setIsLoading(true);
+		try {
+			const response = await fetch(`/api/repo/models/${params.id}`);
+			const data = await response.json();
 
-        if (!response.ok) {
-          throw new Error(data.message);
-        }
+			if (!response.ok) {
+				throw new Error(data.message);
+			}
 
-        setModel(data.model);
-        setMetrics(data.metrics);
-        setAllDomains(data.allDomains);
-        setAllPurposes(data.allPurposes);
+			setModel(data.model);
+			setMetrics(data.metrics);
+			setAllDomains(data.allDomains);
+			setAllPurposes(data.allPurposes);
 
-        setPurpose(
-          data.metrics.find((metric) => metric.ID === "SM3").calculationResult
-        );
-        setApplicationDomain(
-          data.metrics.find((metric) => metric.ID === "SM1").calculationResult
-        );
+			setPurpose(
+				data.metrics.find((metric) => metric.ID === "SO1")?.calculationResult ||
+					"custom",
+			);
+			setApplicationDomain(
+				data.metrics.find((metric) => metric.ID === "SO2")?.calculationResult ||
+					"custom",
+			);
 
-        if (data.model.textRepURL) {
-          const textResponse = await fetch(data.model.textRepURL);
-          if (textResponse.ok) {
-            const textContent = await textResponse.text();
-            setTextRepContent(textContent);
-          }
-        }
-      } catch (err) {
-        setIsError(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+			if (data.model.textRepURL) {
+				const textResponse = await fetch(data.model.textRepURL);
+				if (textResponse.ok) {
+					const textContent = await textResponse.text();
+					setTextRepContent(textContent);
+				}
+			}
+		} catch (err) {
+			setIsError(err);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
+	useEffect(() => {
+		fetchModel();
+	}, [params.id]);
 
-  useEffect(() => {
-    fetchModel();
-  }, [params.id]);
+	useEffect(() => {
+		if (sessionStatus === "authenticated" && model && model.author) {
+			setIsAuthor(session.user._id === model.author._id);
+		}
+	}, [sessionStatus, session, model]);
 
-  useEffect(() => {
-    if (sessionStatus === "authenticated" && model && model.author) {
-      setIsAuthor(session.user._id === model.author._id);
-    }
-  }, [sessionStatus, session, model]);
+	const handleDelete = () => {
+		setShowDeleteModal(true);
+	};
 
-  const handleDelete = () => {
-    setShowDeleteModal(true);
-  };
+	const handlePurposeChange = (e) => {
+		const value = e.target.value;
+		setPurpose(value);
+		if (value !== "custom") {
+			setCustomPurpose("");
+		}
+	};
 
-  const handlePurposeChange = (e) => {
-    const value = e.target.value;
-    setPurpose(value);
-    if (value !== "custom") {
-      setCustomPurpose("");
-    }
-  };
+	const handleDomainChange = (e) => {
+		const value = e.target.value;
+		setApplicationDomain(value);
+		if (value !== "custom") {
+			setCustomDomain("");
+		}
+	};
 
-  const handleDomainChange = (e) => {
-    const value = e.target.value;
-    setApplicationDomain(value);
-    if (value !== "custom") {
-      setCustomDomain("");
-    }
-  };
+	const confirmDelete = async () => {
+		setShowDeleteModal(false);
+		setIsLoading(true);
+		try {
+			const response = await fetch(`/api/repo/models/${params.id}`, {
+				method: "DELETE",
+			});
 
-  const confirmDelete = async () => {
-    setShowDeleteModal(false);
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/repo/models/${params.id}`, {
-        method: "DELETE",
-      });
+			if (response.ok) {
+				toast.success("Model deleted successfully!");
+				router.push("/repo");
+			} else {
+				const data = await response.json();
+				toast.error(data.message);
+			}
+		} catch (error) {
+			setIsError(error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-      if (response.ok) {
-        toast.success("Model deleted successfully!");
-        router.push("/repo");
-      } else {
-        const data = await response.json();
-        toast.error(data.message);
-      }
-    } catch (error) {
-      setIsError(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+	const handleDownload = async (e, fileUrl, fileType = "decl") => {
+		e.preventDefault();
+		try {
+			const response = await fetch(fileUrl);
+			const blob = await response.blob();
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.style.display = "none";
+			a.href = url;
 
-  const handleDownload = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch(model.contentURL);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.style.display = "none";
-      a.href = url;
-      a.download = "model.decl";
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
+			const filename = fileType === "decl" ? "model.decl" : "automata.dot";
+			a.download = filename;
 
-   const handleSubmit = async (field) => {
+			document.body.appendChild(a);
+			a.click();
+			window.URL.revokeObjectURL(url);
+			document.body.removeChild(a);
+		} catch (error) {
+			toast.error(`Failed to download file: ${error.message}`);
+		}
+	};
 
-    const value = field === 'SM3' 
-      ? (purpose === 'custom' ? customPurpose : purpose) 
-      : (applicationDomain === 'custom' ? customDomain : applicationDomain);
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/repo/models/${params.id}/metrics`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ [field]: value }),
-      });
+	const handleSubmit = async (field) => {
+		const value =
+			field === "SO1"
+				? purpose === "custom"
+					? customPurpose
+					: purpose
+				: applicationDomain === "custom"
+					? customDomain
+					: applicationDomain;
+		setIsLoading(true);
+		try {
+			const response = await fetch(`/api/repo/models/${params.id}/metrics`, {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ [field]: value }),
+			});
 
-      if (response.ok) {
-         await fetchModel();
-        toast.success("Values of the metrics updated!");
-      
-      } else {
-        const data = await response.json();
-        toast.error(data.message);
-      }
-    } catch (error) {
-      setIsError(error);
-    } finally {
-        setIsLoading(false);
-      }
-  };
+			if (response.ok) {
+				await fetchModel();
+				toast.success("Values of the metrics updated!");
+			} else {
+				const data = await response.json();
+				toast.error(data.message);
+			}
+		} catch (error) {
+			setIsError(error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-  return (
-    <div className="w-full px-6 py-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-0 break-words max-w-full sm:max-w-[60%]">
-          {model?.name}
-        </h1>
-        <div className="flex flex-wrap gap-2 justify-start sm:justify-end">
-          {model?.contentURL && (
-            <Link
-              href={`${model.contentURL}`}
-              onClick={handleDownload}
-              className="bg-orange hover:bg-indigo hover:text-white text-black font-bold py-2 px-4 rounded inline-block"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                className="w-5 h-5 inline-block mr-2"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2m-5-4l-3 3m0 0l-3-3m3 3V4"
-                />
-              </svg>
-              Model
-            </Link>
-          )}
-          {isAuthor && (
-            <div className="flex space-x-2">
-              <button
-                onClick={() => router.push(`/repo/models/edit/${params.id}`)}
-                className="bg-blue hover:bg-green text-white font-bold py-2 px-4 rounded"
-              >
-                Edit
-              </button>
-              <button
-                onClick={handleDelete}
-                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-              >
-                Delete
-              </button>
-            </div>
-          )}
-          <Link
-            href="/repo"
-            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
-          >
-            Back
-          </Link>
-        </div>
-      </div>
+	return (
+		<div className="w-full px-6 py-8">
+			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+				<h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-0 break-words max-w-full sm:max-w-[60%]">
+					{model?.name}
+				</h1>
+				<div className="flex flex-wrap gap-2 justify-start sm:justify-end">
+					{model?.contentURL && (
+						<Link
+							href={`${model.contentURL}`}
+							onClick={(e) => handleDownload(e, model.contentURL, "decl")}
+							className="bg-orange hover:bg-indigo hover:text-white text-black font-bold py-2 px-4 rounded inline-block"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								className="w-5 h-5 inline-block mr-2"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2m-5-4l-3 3m0 0l-3-3m3 3V4"
+								/>
+							</svg>
+							Model
+						</Link>
+					)}
+					{model?.automataUrl && (
+						<Link
+							href={`${model.automataUrl}`}
+							onClick={(e) => handleDownload(e, model.automataUrl, "dot")}
+							className="bg-orange hover:bg-indigo hover:text-white text-black font-bold py-2 px-4 rounded inline-block"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								className="w-5 h-5 inline-block mr-2"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2m-5-4l-3 3m0 0l-3-3m3 3V4"
+								/>
+							</svg>
+							Automata
+						</Link>
+					)}
+					{isAuthor && (
+						<div className="flex space-x-2">
+							<button
+								onClick={() => router.push(`/repo/models/edit/${params.id}`)}
+								className="bg-blue hover:bg-green text-white font-bold py-2 px-4 rounded"
+							>
+								Edit
+							</button>
+							<button
+								onClick={handleDelete}
+								className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+							>
+								Delete
+							</button>
+						</div>
+					)}
+					<Link
+						href="/repo"
+						className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+					>
+						Back
+					</Link>
+				</div>
+			</div>
 
-      <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Model Details</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <p className="font-semibold">Description:</p>
-            <p>{model?.description || "Not specified"}</p>
-          </div>
-          <div>
-            <p className="font-semibold">Author:</p>
-            <p>
-              {" "}
-              {model?.author?.name ? (
-                <div className="flex items-center">
-                  <Link
-                    href={`mailto:${model.author.email}`}
-                    className="flex items-center"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-gray-400 hover:text-blue-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <span className="ml-2">{model.author.name}</span>
-                  </Link>
-                </div>
-              ) : (
-                "Not specified"
-              )}
-            </p>
-          </div>
-          <div>
-            <p className="font-semibold">Created At:</p>
-            <p>{new Date(model?.createdAt).toLocaleString()}</p>
-          </div>
-          <div>
-            <p className="font-semibold">Reference:</p>
-            {model?.reference?.url ? (
-              <Link
-                href={`${model.reference.url}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center text-blue hover:text-green hover:underline"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="mr-1 h-4 w-4 text-blue-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4.5C8.32 4.5 5.03 7.12 3.24 10.12c-.08.14-.08.31 0 .45C5.03 16.88 8.32 19.5 12 19.5s6.97-2.62 8.76-5.88c.08-.14.08-.31 0-.45C18.97 7.12 15.68 4.5 12 4.5zM12 15a3 3 0 100-6 3 3 0 000 6z"
-                  />
-                </svg>{" "}
-                {model.reference.name}
-              </Link>
-            ) : (
-              <p>No reference provided</p>
-            )}
-          </div>
-          {!isAuthor && (
-            <>
-              <div>
-                <p className="font-semibold">Application Domain:</p>
-                <p>{applicationDomain === "" ? "Unspecified" : applicationDomain}</p>
-              </div>
-              <div>
-                <p className="font-semibold">Purpose:</p>
-                <p>{purpose === "" ? "Unspecified" : purpose}</p>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+			<div className="bg-white shadow-md rounded-lg p-6 mb-6">
+				<h2 className="text-xl font-semibold mb-4">Model Details</h2>
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div>
+						<p className="font-semibold">Description:</p>
+						<p>{model?.description || "Not specified"}</p>
+					</div>
+					<div>
+						<p className="font-semibold">Author:</p>
+						<p>
+							{" "}
+							{model?.author?.name ? (
+								<div className="flex items-center">
+									<Link
+										href={`mailto:${model.author.email}`}
+										className="flex items-center"
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											className="h-5 w-5 text-gray-400 hover:text-blue-500"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke="currentColor"
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+												d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+											/>
+										</svg>
+										<span className="ml-2">{model.author.name}</span>
+									</Link>
+								</div>
+							) : (
+								"Not specified"
+							)}
+						</p>
+					</div>
+					<div>
+						<p className="font-semibold">Created At:</p>
+						<p>{new Date(model?.createdAt).toLocaleString()}</p>
+					</div>
+					<div>
+						<p className="font-semibold">Reference:</p>
+						{model?.reference?.url ? (
+							<Link
+								href={`${model.reference.url}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="flex items-center text-blue hover:text-green hover:underline"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									className="mr-1 h-4 w-4 text-blue-500"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M12 4.5C8.32 4.5 5.03 7.12 3.24 10.12c-.08.14-.08.31 0 .45C5.03 16.88 8.32 19.5 12 19.5s6.97-2.62 8.76-5.88c.08-.14.08-.31 0-.45C18.97 7.12 15.68 4.5 12 4.5zM12 15a3 3 0 100-6 3 3 0 000 6z"
+									/>
+								</svg>{" "}
+								{model.reference.name}
+							</Link>
+						) : (
+							<p>No reference provided</p>
+						)}
+					</div>
+					{!isAuthor && (
+						<>
+							<div>
+								<p className="font-semibold">Application Domain:</p>
+								<p>
+									{applicationDomain === "" ? "Unspecified" : applicationDomain}
+								</p>
+							</div>
+							<div>
+								<p className="font-semibold">Purpose:</p>
+								<p>{purpose === "" ? "Unspecified" : purpose}</p>
+							</div>
+						</>
+					)}
+				</div>
+			</div>
 
-      {isAuthor && metrics.length > 1 && (
-  <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-    <h2 className="text-2xl font-bold mb-6 text-gray-800">
-      Model Information
-    </h2>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <label
-          htmlFor="purpose"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Purpose:
-        </label>
-        <div className="flex flex-col space-y-2">
-          <div className="flex">
-            <select
-              id="purpose"
-              value={purpose}
-              onChange={handlePurposeChange}
-              className="flex-grow px-3 py-2 border border-gray-300 rounded-l-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="" disabled>Select a purpose</option>
-              {allPurposes.map(purpose => (
-                <option key={purpose} value={purpose}>{purpose}</option>
-              ))}
-              <option value="custom">Other (specify)</option>
-            </select>
-            <button
-              onClick={() => handleSubmit("SM3")}
-              className="bg-indigo hover:bg-blue text-white font-bold py-2 px-4 rounded-r-md transition duration-150 ease-in-out"
-            >
-              Submit
-            </button>
-          </div>
-          {purpose === "custom" && (
-            <input
-              type="text"
-              value={customPurpose}
-              onChange={(e) => setCustomPurpose(e.target.value)}
-              placeholder="Enter custom purpose"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          )}
-        </div>
-      </div>
-      <div>
-        <label
-          htmlFor="applicationDomain"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Application Domain:
-        </label>
-        <div className="flex flex-col space-y-2">
-          <div className="flex">
-            <select
-              id="applicationDomain"
-              value={applicationDomain}
-              onChange={handleDomainChange}
-              className="flex-grow px-3 py-2 border border-gray-300 rounded-l-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="" disabled>Select a domain</option>
-              {allDomains.map(domain => (
-                <option key={domain} value={domain}>{domain}</option>
-              ))}
-              <option value="custom">Other (specify)</option>
-            </select>
-            <button
-              onClick={() => handleSubmit("SM1")}
-              className="bg-indigo hover:bg-blue text-white font-bold py-2 px-4 rounded-r-md transition duration-150 ease-in-out"
-            >
-              Submit
-            </button>
-          </div>
-          {applicationDomain === "custom" && (
-            <input
-              type="text"
-              value={customDomain}
-              onChange={(e) => setCustomDomain(e.target.value)}
-              placeholder="Enter custom domain"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          )}
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+			{isAuthor && metrics.length > 1 && (
+				<div className="bg-white shadow-md rounded-lg p-6 mb-6">
+					<h2 className="text-2xl font-bold mb-6 text-gray-800">
+						Model Information
+					</h2>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+						<div>
+							<label
+								htmlFor="purpose"
+								className="block text-sm font-medium text-gray-700 mb-2"
+							>
+								Purpose:
+							</label>
+							<div className="flex flex-col space-y-2">
+								<div className="flex">
+									<select
+										id="purpose"
+										value={purpose}
+										onChange={handlePurposeChange}
+										className="flex-grow px-3 py-2 border border-gray-300 rounded-l-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+									>
+										<option value="" disabled>
+											Select a purpose
+										</option>
+										{allPurposes.map((purpose) => (
+											<option key={purpose} value={purpose}>
+												{purpose}
+											</option>
+										))}
+										<option value="custom">Other (specify)</option>
+									</select>
+									<button
+										onClick={() => handleSubmit("SO1")}
+										className="bg-indigo hover:bg-blue text-white font-bold py-2 px-4 rounded-r-md transition duration-150 ease-in-out"
+									>
+										Submit
+									</button>
+								</div>
+								{purpose === "custom" && (
+									<input
+										type="text"
+										value={customPurpose}
+										onChange={(e) => setCustomPurpose(e.target.value)}
+										placeholder="Enter custom purpose"
+										className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+									/>
+								)}
+							</div>
+						</div>
+						<div>
+							<label
+								htmlFor="applicationDomain"
+								className="block text-sm font-medium text-gray-700 mb-2"
+							>
+								Application Domain:
+							</label>
+							<div className="flex flex-col space-y-2">
+								<div className="flex">
+									<select
+										id="applicationDomain"
+										value={applicationDomain}
+										onChange={handleDomainChange}
+										className="flex-grow px-3 py-2 border border-gray-300 rounded-l-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+									>
+										<option value="" disabled>
+											Select a domain
+										</option>
+										{allDomains.map((domain) => (
+											<option key={domain} value={domain}>
+												{domain}
+											</option>
+										))}
+										<option value="custom">Other (specify)</option>
+									</select>
+									<button
+										onClick={() => handleSubmit("SO2")}
+										className="bg-indigo hover:bg-blue text-white font-bold py-2 px-4 rounded-r-md transition duration-150 ease-in-out"
+									>
+										Submit
+									</button>
+								</div>
+								{applicationDomain === "custom" && (
+									<input
+										type="text"
+										value={customDomain}
+										onChange={(e) => setCustomDomain(e.target.value)}
+										placeholder="Enter custom domain"
+										className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+									/>
+								)}
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
 
-      {metrics.length > 2 && (
-        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-6 text-gray-800">
-            Model Metrics
-          </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {metrics.map((metric) => {
-              if (metric.ID === "SM1" || metric.ID === "SM3") {
-                return null;
-              }
-              return (
-                <div
-                  key={metric.ID}
-                  className="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-300"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-blue">
-                      {metric.name}
-                    </h3>
-                    <span className="text-sm font-medium text-gray-500 bg-gray-200 px-2 py-1 rounded-full">
-                      ID: {metric.ID}
-                    </span>
-                  </div>
-                  <div className="space-y-3">
-                    <p className="text-gray-700">
-                      <span className="font-medium">Result:</span>
-                      <span className="ml-2 text-green font-semibold">
-                        {metric.calculationResult}
-                      </span>
-                    </p>
-                    <p className="text-gray-700">
-                      <span className="font-medium">Description:</span>
-                      <span className="ml-2">{metric.description}</span>
-                    </p>
-                    <div className="mt-4">
-                      <p className="font-medium text-gray-700 mb-2">Formula:</p>
-                      <div className="bg-white p-3 rounded-md border border-gray-200 overflow-x-auto">
-                        <BlockMath
-                          math={metric.formula.replace(/^\$\$|\$\$$/g, "")}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+			{metrics.length > 2 && (
+				<div className="bg-white shadow-md rounded-lg p-6 mb-6">
+					<h2 className="text-2xl font-bold mb-6 text-gray-800">
+						Model Metrics
+					</h2>
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+						{metrics.map((metric) => {
+							if (metric.ID === "SO1" || metric.ID === "SO2") {
+								return null;
+							}
+							if (metric.ID === "BH2") {
+								return (
+									<div
+										key={metric.ID}
+										className="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-300 col-span-2"
+									>
+										<div className="flex items-center justify-between mb-4">
+											<h3 className="text-lg font-semibold text-blue">
+												{metric.name}
+											</h3>
+											<span className="text-sm font-medium text-gray-500 bg-gray-200 px-2 py-1 rounded-full">
+												ID: {metric.ID}
+											</span>
+										</div>
+										<div className="space-y-3">
+											<div className="flex items-center space-x-4">
+												<span className="font-medium">Consistency Status:</span>
+												{!metric.calculationResult ? (
+													<span className="px-3 py-1 bg-gray text-white rounded-full font-medium">
+														N/A
+													</span>
+												) : !metric.calculationResult.success ? (
+													<span className="px-3 py-1 bg-yellow text-black rounded-full font-medium">
+														{metric.calculationResult.message} ⚠️
+													</span>
+												) : metric.calculationResult.satisfiable ? (
+													<span className="px-3 py-1 bg-green text-white rounded-full font-medium">
+														Consistent ✓
+													</span>
+												) : (
+													<span className="px-3 py-1 bg-red-500 text-white rounded-full font-medium">
+														Inconsistent ✗
+													</span>
+												)}
+											</div>
 
-      {textRepContent && (
-        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Text Representation</h2>
-          <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto whitespace-pre-wrap">
-            {textRepContent}
-          </pre>
-        </div>
-      )}
+											<p className="text-gray-700 mt-4">
+												<span className="font-medium">Description:</span>
+												<span className="ml-2">{metric.description}</span>
+											</p>
 
-      {model?.imageURL && (
-        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Model Image</h2>
-          <div className="relative w-full h-64">
-            <Image
-              src={model.imageURL}
-              alt="Model Image"
-              layout="fill"
-              objectFit="contain"
-              className="rounded-lg"
-            />
-          </div>
-        </div>
-      )}
+											<div className="mt-4">
+												<p className="font-medium text-gray-700 mb-2">
+													Formula:
+												</p>
+												<div className="bg-white p-3 rounded-md border border-gray-200 overflow-x-auto">
+													<BlockMath
+														math={metric.formula.replace(/^\$\$|\$\$$/g, "")}
+													/>
+												</div>
+											</div>
+										</div>
+									</div>
+								);
+							}
+							if (metric.ID === "BH1") {
+								return (
+									<div
+										key={metric.ID}
+										className="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-300 col-span-2"
+									>
+										<div className="flex items-center justify-between mb-4">
+											<h3 className="text-lg font-semibold text-blue">
+												{metric.name}
+											</h3>
+											<span className="text-sm font-medium text-gray-500 bg-gray-200 px-2 py-1 rounded-full">
+												ID: {metric.ID}
+											</span>
+										</div>
+										<div className="space-y-3">
+											<div className="flex items-center space-x-4">
+												<span className="font-medium">Redundancy Status:</span>
+												{!metric.calculationResult ? (
+													<span className="px-3 py-1 bg-gray text-white rounded-full font-medium">
+														N/A
+													</span>
+												) : metric.calculationResult.redundantCount > 0 ? (
+													<span className="px-3 py-1 bg-yellow text-black rounded-full font-medium">
+														{metric.calculationResult.redundantCount} Redundant
+														Constraints ⚠️
+													</span>
+												) : (
+													<span className="px-3 py-1 bg-green text-white rounded-full font-medium">
+														No Redundant Constraint(s) ✓
+													</span>
+												)}
+											</div>
 
-      <DeleteConfirmationModal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={confirmDelete}
-      />
-    </div>
-  );
+											{metric.calculationResult &&
+												metric.calculationResult.redundantCount > 0 && (
+													<div className="mt-3">
+														<span className="font-medium">
+															Redundant Constraints:
+														</span>
+														<div className="mt-2 p-3 bg-white rounded-md border border-gray-200">
+															<code className="text-sm text-gray-700 break-all">
+																{metric.calculationResult.result}
+															</code>
+														</div>
+													</div>
+												)}
+
+											<p className="text-gray-700 mt-4">
+												<span className="font-medium">Description:</span>
+												<span className="ml-2">{metric.description}</span>
+											</p>
+
+											<div className="mt-4">
+												<p className="font-medium text-gray-700 mb-2">
+													Formula:
+												</p>
+												<div className="bg-white p-3 rounded-md border border-gray-200 overflow-x-auto">
+													<BlockMath
+														math={metric.formula.replace(/^\$\$|\$\$$/g, "")}
+													/>
+												</div>
+											</div>
+										</div>
+									</div>
+								);
+							}
+							return (
+								<div
+									key={metric.ID}
+									className="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-300"
+								>
+									<div className="flex items-center justify-between mb-4">
+										<h3 className="text-lg font-semibold text-blue">
+											{metric.name}
+										</h3>
+										<span className="text-sm font-medium text-gray-500 bg-gray-200 px-2 py-1 rounded-full">
+											ID: {metric.ID}
+										</span>
+									</div>
+									<div className="space-y-3">
+										<p className="text-gray-700">
+											<span className="font-medium">Result:</span>
+											<span className="ml-2 text-green font-semibold">
+												{metric.calculationResult}
+											</span>
+										</p>
+										<p className="text-gray-700">
+											<span className="font-medium">Description:</span>
+											<span className="ml-2">{metric.description}</span>
+										</p>
+										<div className="mt-4">
+											<p className="font-medium text-gray-700 mb-2">Formula:</p>
+											<div className="bg-white p-3 rounded-md border border-gray-200 overflow-x-auto">
+												<BlockMath
+													math={metric.formula.replace(/^\$\$|\$\$$/g, "")}
+												/>
+											</div>
+										</div>
+									</div>
+								</div>
+							);
+						})}
+					</div>
+				</div>
+			)}
+
+			{textRepContent && (
+				<div className="bg-white shadow-md rounded-lg p-6 mb-6">
+					<h2 className="text-xl font-semibold mb-4">Text Representation</h2>
+					<pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto whitespace-pre-wrap">
+						{textRepContent}
+					</pre>
+				</div>
+			)}
+
+			{model?.imageURL && (
+				<div className="bg-white shadow-md rounded-lg p-6 mb-6">
+					<h2 className="text-xl font-semibold mb-4">Model Image</h2>
+					<div className="relative w-full h-64">
+						<Image
+							src={model.imageURL}
+							alt="Model Image"
+							layout="fill"
+							objectFit="contain"
+							className="rounded-lg"
+						/>
+					</div>
+				</div>
+			)}
+
+			<DeleteConfirmationModal
+				isOpen={showDeleteModal}
+				onClose={() => setShowDeleteModal(false)}
+				onConfirm={confirmDelete}
+			/>
+		</div>
+	);
 };
 
 export default DeclareModel;

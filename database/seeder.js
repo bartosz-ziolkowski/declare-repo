@@ -1,6 +1,6 @@
+import DeclareAndMetric from "./models/declareAndMetric.js";
 import DeclareModel from "./models/declareModel.js";
 import Metric from "./models/metric.js";
-import DeclareAndMetric from "./models/declareAndMetric.js";
 import dbConnect from "./dbConnect.js";
 import dotenv from "dotenv";
 import { mockDeclareModels } from "../utils/data/mockDeclareModels.js";
@@ -13,11 +13,10 @@ const seed = async () => {
   try {
     dbConnect();
 
-    //await DeclareModel.deleteMany();
+    await DeclareModel.deleteMany();
     //await DeclareModel.insertMany(mockDeclareModels);
 
-    //await DeclareAndMetric.deleteMany();
-
+    await DeclareAndMetric.deleteMany();
     await Metric.deleteMany();
     await Metric.insertMany(mockMetrics);
 
