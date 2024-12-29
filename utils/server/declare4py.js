@@ -91,7 +91,6 @@ async function waitForCommandCompletion(client, commandId, instanceId) {
 				);
 				continue;
 			}
-			console.log("error", error);
 		}
 
 		attempts++;
@@ -104,7 +103,6 @@ async function waitForCommandCompletion(client, commandId, instanceId) {
 export async function verifyModelConsistencyAndRedundancy(modelPath) {
 	const response = await runPythonCommand(modelPath);
 	if (response) {
-		console.log("106", response);
 		return parseDeclare4Py(response);
 	}
 }

@@ -143,11 +143,12 @@ export default function CreateDeclareModel() {
 					router.push("/repo");
 				} else {
 					const data = await response.json();
+					console.log("blad1", data);
 					toast.error(data.message);
-					console.log(err);
+				
 				}
 			} catch (error) {
-				console.log(error);
+				console.log("blad2", error);
 				setIsError(error);
 			} finally {
 				setIsSubmitting(false);
