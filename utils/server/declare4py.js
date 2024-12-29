@@ -48,7 +48,7 @@ async function runPythonCommand(modelPath) {
 
 async function waitForCommandCompletion(client, commandId, instanceId) {
 	const maxAttempts = 15;
-	const delayBetweenAttempts = 6000; 
+	const delayBetweenAttempts = 6000;
 	let attempts = 0;
 
 	const complexResponse = {
@@ -91,7 +91,7 @@ async function waitForCommandCompletion(client, commandId, instanceId) {
 				);
 				continue;
 			}
-			throw error;
+			console.log("error", error);
 		}
 
 		attempts++;
