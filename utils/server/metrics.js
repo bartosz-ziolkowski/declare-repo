@@ -2,7 +2,8 @@ import { verifyModelConsistencyAndRedundancy } from "./declare4py";
 
 export async function calculateMetrics(fileContent, modelPath) {
 	const baseMetrics = {
-		
+		SO1: "N/A",
+		SO2: "N/A",
 	};
 
 	if (

@@ -256,8 +256,6 @@ export const newDeclareModel = errorHandler(async (req) => {
 		}
 	}
 
-	console.log(declareModel);
-
 	return NextResponse.json({ success: true, model: declareModel });
 });
 
