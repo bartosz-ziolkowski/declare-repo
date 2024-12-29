@@ -19,6 +19,7 @@ const DeclareModel = ({ params }) => {
 	const [model, setModel] = useState(null);
 	const { setIsLoading, setIsError } = useLoadingError();
 	const [isAuthor, setIsAuthor] = useState(false);
+	const [userRole, setUserRole] = useState("user");
 	const [textRepContent, setTextRepContent] = useState("");
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [metrics, setMetrics] = useState([]);
@@ -28,6 +29,47 @@ const DeclareModel = ({ params }) => {
 	const [customDomain, setCustomDomain] = useState("");
 	const [allDomains, setAllDomains] = useState([]);
 	const [allPurposes, setAllPurposes] = useState([]);
+	const [isVisible, setIsVisible] = useState(false);
+
+	const handleVisibilityToggle = async () => {
+		setIsLoading(true);
+
+		try {
+			const currentName = model?.name;
+			const currentDescription = model?.description;
+			const currentReference = model?.reference;
+
+			const response = await fetch(`/api/repo/models/${params.id}`, {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					name: currentName,
+					description: currentDescription,
+					reference: currentReference,
+					public: !isVisible,
+				}),
+			});
+
+			if (response.ok) {
+				await fetchModel();
+				if (!isVisible) {
+					toast.success("Model is now visible to the public");
+				} else {
+					toast("Model is now hidden from the public");
+				}
+			} else {
+				const data = await response.json();
+				toast.error(data.message || "Failed to update visibility");
+			}
+		} catch (error) {
+			setIsError(error);
+		} finally {
+			setIsLoading(false);
+			setIsVisible(!isVisible);
+		}
+	};
 
 	const fetchModel = async () => {
 		if (!params.id) return;
@@ -45,6 +87,7 @@ const DeclareModel = ({ params }) => {
 			setMetrics(data.metrics);
 			setAllDomains(data.allDomains);
 			setAllPurposes(data.allPurposes);
+			setIsVisible(data.model.public);
 
 			setPurpose(
 				data.metrics.find((metric) => metric.ID === "SO1")?.calculationResult ||
@@ -76,6 +119,10 @@ const DeclareModel = ({ params }) => {
 	useEffect(() => {
 		if (sessionStatus === "authenticated" && model && model.author) {
 			setIsAuthor(session.user._id === model.author._id);
+			setUserRole(session.user.role);
+			if (userRole === "moderator" || userRole === "admin") {
+				setIsAuthor(true);
+			}
 		}
 	}, [sessionStatus, session, model]);
 
@@ -176,12 +223,65 @@ const DeclareModel = ({ params }) => {
 		}
 	};
 
+	const VisibilityToggle = ({ isVisible, onToggle }) => {
+		return (
+			<button
+				onClick={onToggle}
+				className={`flex items-center px-4 py-2 rounded-md transition-colors ${
+					isVisible
+						? "bg-green-500 hover:bg-green-600"
+						: "bg-gray-400 hover:bg-gray-500"
+				} text-white`}
+			>
+				{isVisible ? (
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						className="h-5 w-5"
+						viewBox="0 0 20 20"
+						fill="currentColor"
+					>
+						<path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+						<path
+							fillRule="evenodd"
+							d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+							clipRule="evenodd"
+						/>
+					</svg>
+				) : (
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						className="h-5 w-5 opacity-50"
+						viewBox="0 0 20 20"
+						fill="currentColor"
+					>
+						<path
+							fillRule="evenodd"
+							d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+							clipRule="evenodd"
+						/>
+						<path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+					</svg>
+				)}
+				<span className="ml-2">{isVisible ? "Visible" : "Hidden"}</span>
+			</button>
+		);
+	};
+
 	return (
 		<div className="w-full px-6 py-8">
 			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-				<h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-0 break-words max-w-full sm:max-w-[60%]">
-					{model?.name}
-				</h1>
+				<div className="flex items-center gap-4 mb-4 sm:mb-0 max-w-full sm:max-w-[60%]">
+					<h1 className="text-2xl sm:text-3xl font-bold break-words">
+						{model?.name}
+					</h1>
+					{(userRole === "admin" || userRole === "moderator") && (
+						<VisibilityToggle
+							isVisible={model?.public}
+							onToggle={() => handleVisibilityToggle()}
+							className="flex-shrink-0"
+						/>
+					)}
+				</div>
 				<div className="flex flex-wrap gap-2 justify-start sm:justify-end">
 					{model?.contentURL && (
 						<Link
@@ -597,9 +697,13 @@ const DeclareModel = ({ params }) => {
 										<div className="mt-4">
 											<p className="font-medium text-gray-700 mb-2">Formula:</p>
 											<div className="bg-white p-3 rounded-md border border-gray-200 overflow-x-auto">
-												<BlockMath
-													math={metric.formula.replace(/^\$\$|\$\$$/g, "")}
-												/>
+												{metric.formula ? (
+													<BlockMath
+														math={metric.formula.replace(/^\$\$|\$\$$/g, "")}
+													/>
+												) : (
+													<span className="text-gray-500">N/A</span>
+												)}
 											</div>
 										</div>
 									</div>

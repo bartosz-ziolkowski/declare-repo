@@ -9,5 +9,5 @@ dbConnect();
 router.get(allModelsAndMetrics);
 
 export async function GET(request, ctx) {
-  return router.run(request, ctx);
+	return router.run(request, ctx);
 }

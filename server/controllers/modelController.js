@@ -11,6 +11,7 @@ import DeclareAndMetric from "@/database/models/declareAndMetric";
 import DeclareModel from "../../database/models/declareModel";
 import Metric from "@/database/models/metric";
 import { NextResponse } from "next/server";
+import User from "@/database/models/user";
 import { calculateMetrics } from "@/utils/server/metrics";
 import { errorHandler } from "../../utils/server/errorHandler";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -19,6 +20,7 @@ import mongoose from "mongoose";
 
 export const allModels = errorHandler(async (req) => {
 	const resPerPage = 6;
+	const session = await getToken({ req });
 
 	const { searchParams } = new URL(req.url);
 	const queryStr = {};
@@ -27,13 +29,23 @@ export const allModels = errorHandler(async (req) => {
 		queryStr[key] = value;
 	});
 
-	const apiFilters = new APIFilters(DeclareModel.find(), queryStr)
-		.filter()
-		.sort();
+	let visibilityQuery = { public: true };
+
+	if (session?.user) {
+		if (session.user.role === "moderator" || session.user.role === "admin") {
+			visibilityQuery = {};
+		} else {
+			visibilityQuery = {
+				$or: [{ public: true }, { author: session.user._id, public: false }],
+			};
+		}
+	}
+
+	const baseQuery = DeclareModel.find(visibilityQuery);
+	const apiFilters = new APIFilters(baseQuery, queryStr).filter().sort();
 	apiFilters.search();
 
 	const totalCount = await DeclareModel.countDocuments();
-
 	const filteredCount = await DeclareModel.countDocuments(
 		apiFilters.query.getFilter(),
 	);
@@ -79,26 +91,26 @@ export const getModelDetails = errorHandler(async (req, { params }) => {
 	const transformedMetrics =
 		metrics.length > 0
 			? metrics.map((item) => ({
-					ID: item.metric.ID,
-					name: item.metric.name,
-					description: item.metric.description,
-					formula: item.metric.formula,
-					calculationResult: item.calculationResult,
-				}))
+				ID: item.metric.ID,
+				name: item.metric.name,
+				description: item.metric.description,
+				formula: item.metric.formula,
+				calculationResult: item.calculationResult,
+			}))
 			: [];
 
 	const domainMetric = await Metric.findOne({ ID: "SO2" });
 	let allDomains = domainMetric
 		? await DeclareAndMetric.distinct("calculationResult", {
-				metric: domainMetric._id,
-			})
+			metric: domainMetric._id,
+		})
 		: [];
 
 	const purposeMetric = await Metric.findOne({ ID: "SO1" });
 	let allPurposes = purposeMetric
 		? await DeclareAndMetric.distinct("calculationResult", {
-				metric: purposeMetric._id,
-			})
+			metric: purposeMetric._id,
+		})
 		: [];
 
 	const uniqueCaseInsensitive = (arr) => {
@@ -125,28 +137,79 @@ export const getModelDetails = errorHandler(async (req, { params }) => {
 });
 
 export const newDeclareModel = errorHandler(async (req) => {
-	const body = await req.formData();
+	if (req.method !== "POST") {
+		return NextResponse.json(
+			{ success: false, message: "Invalid request method." },
+			{ status: 405 }
+		);
+	}
+
+	const session = await getToken({ req });
+	let authorId;
+
+	if (session?.user?._id) {
+		authorId = session.user._id;
+	} else {
+		const fallbackUser = await User.findOne({ email: "tester@dtu.dk" });
+		if (!fallbackUser) {
+			return NextResponse.json(
+				{ success: false, message: "Test user not found" },
+				{ status: 500 }
+			);
+		}
+		authorId = fallbackUser._id;
+	}
+
+	const contentType = req.headers.get("Content-Type");
+
+	if (!["multipart/form-data", "application/x-www-form-urlencoded", "application/json"].some(ct => contentType.includes(ct))) {
+		return NextResponse.json(
+			{ success: false, message: "Invalid Content-Type header." },
+			{ status: 400 }
+		);
+	}
+
+	let body;
+	if (contentType.includes("application/json")) {
+		body = await req.json();
+	} else {
+		const formData = await req.formData();
+		body = Object.fromEntries(formData.entries());
+	}
 
 	const modelData = {
-		name: body.get("name"),
-		description: body.get("description"),
+		name: body.name || body["name"],
+		description: body.description || body["description"],
 		reference: {
-			name: body.get("referenceName"),
-			url: body.get("referenceUrl"),
+			name: body.referenceName || body["referenceName"] || null,
+			url: body.referenceUrl || body["referenceUrl"] || null,
 		},
-		contentURL: body.get("contentUrl"),
-		textRepURL: body.get("textRepUrl"),
-		textRepURL: body.get("textRepUrl"),
-		imageURL: body.get("imageUrl"),
-		automataUrl: body.get("automataUrl"),
-		author: body.get("author"),
+		contentURL: body.contentUrl || body["contentUrl"] || null,
+		textRepURL: body.textRepUrl || body["textRepUrl"] || null,
+		imageURL: body.imageUrl || body["imageUrl"] || null,
+		automataUrl: body.automataUrl || body["automataUrl"] || null,
+		author: authorId,
 	};
+
+	if (!modelData.name || !modelData.description) {
+		return NextResponse.json(
+			{ success: false, message: "'name' and 'description' are required fields." },
+			{ status: 400 }
+		);
+	}
 
 	let fileContent = null;
 	if (modelData.contentURL && modelData.contentURL.trim() !== "") {
 		const response = await fetch(modelData.contentURL);
-		fileContent = await response.text();
 
+		if (!response.ok) {
+			return NextResponse.json(
+				{ success: false, message: "Failed to fetch content from contentURL." },
+				{ status: 400 }
+			);
+		}
+
+		fileContent = await response.text();
 		const result = isModelCorrect(fileContent);
 
 		if (result !== "OK") {
@@ -168,12 +231,17 @@ export const newDeclareModel = errorHandler(async (req) => {
 
 			return NextResponse.json(
 				{ success: false, message: result },
-				{ status: 400 },
+				{ status: 400 }
 			);
 		}
 	}
 
-	const metrics = await calculateMetrics(fileContent, modelData.contentURL);
+	const metrics = fileContent
+		? await calculateMetrics(fileContent, modelData.contentURL)
+		: {
+			SO1: "N/A",
+			SO2: "N/A",
+		};
 
 	const declareModel = await DeclareModel.create(modelData);
 
@@ -188,8 +256,9 @@ export const newDeclareModel = errorHandler(async (req) => {
 		}
 	}
 
-	return NextResponse.json({ success: true });
+	return NextResponse.json({ success: true, model: declareModel });
 });
+
 
 const isModelCorrect = (fileContent) => {
 	const lines = fileContent.split("\n");
@@ -207,7 +276,11 @@ const isModelCorrect = (fileContent) => {
 
 		const activityMatch = line.match(validActivityRegex);
 		if (activityMatch) {
-			definedActivities.add(activityMatch[1]);
+			const activityName = activityMatch[1];
+			if (definedActivities.has(activityName)) {
+				return `Duplicate activity "${activityName}" on line ${i + 1}: "${line}"`;
+			}
+			definedActivities.add(activityName);
 			continue;
 		}
 
@@ -264,7 +337,7 @@ export const updateModelDetails = errorHandler(async (req, { params }) => {
 	const { id } = params;
 	const session = await getToken({ req });
 
-	const { name, description, reference } = await req.json();
+	const { name, description, reference, public: visible } = await req.json();
 
 	if (!mongoose.Types.ObjectId.isValid(id)) {
 		return NextResponse.json(
@@ -283,15 +356,21 @@ export const updateModelDetails = errorHandler(async (req, { params }) => {
 	}
 
 	if (session.user._id !== model.author.toString()) {
-		return NextResponse.json(
-			{ success: false, message: "You cannot edit not you model" },
-			{ status: 404 },
-		);
+		if (session.user.role !== "moderator" && session.user.role !== "admin") {
+			return NextResponse.json(
+				{
+					success: false,
+					message: "You cannot edit a model that is not yours",
+				},
+				{ status: 403 },
+			);
+		}
 	}
 
 	model.name = name;
 	model.description = description;
 	model.reference = reference;
+	model.public = visible;
 
 	await model.save();
 
@@ -319,10 +398,12 @@ export const deleteModel = errorHandler(async (req, { params }) => {
 	}
 
 	if (session.user._id !== model.author.toString()) {
-		return NextResponse.json(
-			{ success: false, message: "You cannot delete not you model" },
-			{ status: 404 },
-		);
+		if (session.user.role !== "moderator" && session.user.role !== "admin") {
+			return NextResponse.json(
+				{ success: false, message: "You cannot delete not you model" },
+				{ status: 404 },
+			);
+		}
 	}
 
 	const urlsToDelete = [
@@ -372,10 +453,12 @@ export const updateModelMetrics = errorHandler(async (req, { params }) => {
 	}
 
 	if (session.user._id !== model.author.toString()) {
-		return NextResponse.json(
-			{ success: false, message: "You cannot edit not you model" },
-			{ status: 404 },
-		);
+		if (session.user.role !== "moderator" && session.user.role !== "admin") {
+			return NextResponse.json(
+				{ success: false, message: "You cannot edit not you model" },
+				{ status: 404 },
+			);
+		}
 	}
 
 	const body = await req.json();
@@ -446,6 +529,7 @@ export const allModelsAndMetrics = errorHandler(async (req) => {
 				_id: "$declareModel",
 				modelName: { $first: "$modelData.name" },
 				modelCreatedAt: { $first: "$modelData.createdAt" },
+				public: { $first: "$modelData.public" },
 				metrics: {
 					$push: {
 						metricId: "$metricData._id",

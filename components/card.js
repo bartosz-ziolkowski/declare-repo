@@ -42,16 +42,15 @@ const Card = ({ title, description, src, url, btn, color, i, new_tab }) => {
               {description}
             </p>
           </div>
-          <div className="relative w-[60%] h-full rounded-[25px] overflow-hidden">
-            <div className="w-full h-full">
-              <Image
-                fill
-                src={`/images/${src}`}
-                alt="image"
-                className="object-cover"
-              />
-            </div>
+          <div className="relative w-[60%] h-full rounded-lg overflow-hidden">
+            <Image
+              fill
+              src={`/images/${src}`}
+              alt="image"
+              className="object-contain rounded-[25px]"
+            />
           </div>
+
         </div>
       </div>
     </div>

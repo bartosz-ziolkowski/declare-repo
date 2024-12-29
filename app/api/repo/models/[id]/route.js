@@ -14,13 +14,13 @@ router.use(isAuthenticatedUser).patch(updateModelDetails);
 router.use(isAuthenticatedUser).delete(deleteModel);
 
 export async function GET(request, ctx) {
-  return router.run(request, ctx);
+	return router.run(request, ctx);
 }
 
 export async function PATCH(request, ctx) {
-  return router.run(request, ctx);
+	return router.run(request, ctx);
 }
 
 export async function DELETE(request, ctx) {
-  return router.run(request, ctx);
+	return router.run(request, ctx);
 }

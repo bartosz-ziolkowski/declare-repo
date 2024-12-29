@@ -48,7 +48,7 @@ async function runPythonCommand(modelPath) {
 
 async function waitForCommandCompletion(client, commandId, instanceId) {
 	const maxAttempts = 15;
-	const delayBetweenAttempts = 6000; // 6 seconds
+	const delayBetweenAttempts = 6000; 
 	let attempts = 0;
 
 	const complexResponse = {
@@ -73,7 +73,6 @@ async function waitForCommandCompletion(client, commandId, instanceId) {
 					return badResponse;
 				case "InProgress":
 				case "Pending":
-					// Continue waiting
 					break;
 				default:
 					return badResponse;
@@ -116,19 +115,16 @@ function parseDeclare4Py(response) {
 		satisfiable: false,
 	};
 
-	// Handle empty responses
 	if (!response) {
 		standardResponse.message = "Empty response received";
 		return standardResponse;
 	}
 
-	// Handle complex response case
 	if (response.message === "Too complex to compute") {
 		standardResponse.message = "Computing timed out";
 		return standardResponse;
 	}
 
-	// Handle error responses
 	if (response.success === false) {
 		standardResponse.message = response.error || "Command execution failed";
 		return standardResponse;
@@ -138,13 +134,11 @@ function parseDeclare4Py(response) {
 		const outputContent = response.result;
 
 		if (!outputContent || typeof outputContent !== "string") {
-			// Handle invalid output content
 			standardResponse.message = "Invalid output format";
 			return standardResponse;
 		}
 
 		if (outputContent.trim().startsWith("{")) {
-			// Try parsing JSON output
 			const jsonResult = JSON.parse(outputContent);
 			let formattedRedundancy = "";
 			let redundancyCount = 0;

@@ -95,14 +95,28 @@ export default function Repo() {
 			});
 
 			const result = await fetchData(displayType, queryParams);
+			let isPrivilegedUser = false;
+			if (session && session.user) {
+				isPrivilegedUser =
+					session.user.role === "moderator" || session.user.role === "admin";
+			}
 
 			if (displayType === "models") {
-				setData(result.models);
+				const filteredModels = isPrivilegedUser
+					? result.models
+					: result.models.filter((model) => model.public !== false);
+				setData(filteredModels);
 			} else if (displayType === "metrics") {
-				setData(result.metrics);
+				const filteredMetrics = isPrivilegedUser
+					? result.metrics
+					: result.metrics.filter((metric) => metric.public !== false);
+				setData(filteredMetrics);
 			} else if (displayType === "all") {
-				setData(result.modelsWithMetrics);
-				const allMetrics = getObjectWithMostMetrics(result.modelsWithMetrics);
+				const filteredModelsWithMetrics = isPrivilegedUser
+					? result.modelsWithMetrics
+					: result.modelsWithMetrics.filter((model) => model.public !== false);
+				setData(filteredModelsWithMetrics);
+				const allMetrics = getObjectWithMostMetrics(filteredModelsWithMetrics);
 				setAllMetrics(allMetrics);
 			}
 
@@ -115,7 +129,7 @@ export default function Repo() {
 		} finally {
 			setIsLoading(false);
 		}
-	}, [displayType, currentPage, filters]);
+	}, [displayType, currentPage, filters, session]);
 
 	useEffect(() => {
 		loadData();
@@ -159,6 +173,31 @@ export default function Repo() {
 		const params = new URLSearchParams(searchParams.toString());
 		params.set("page", page.toString());
 		router.push(`/repo?${params.toString()}`);
+	};
+
+	const VisibilityIcon = ({ isPublic }) => {
+		if (isPublic) return null;
+
+		return (
+			<span
+				className="mr-2 inline-flex items-center"
+				title="Hidden from public"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					className="h-4 w-4 text-gray-400"
+					viewBox="0 0 20 20"
+					fill="currentColor"
+				>
+					<path
+						fillRule="evenodd"
+						d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+						clipRule="evenodd"
+					/>
+					<path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+				</svg>
+			</span>
+		);
 	};
 
 	return (
@@ -325,84 +364,40 @@ export default function Repo() {
 								<div className="flex justify-center space-x-4">
 									<div className="w-1/3">
 										<label
-											htmlFor="constraintVariability"
+											htmlFor="activities"
 											className="block text-sm font-medium text-gray-700 mb-1"
 										>
-											Constraint Variability
+											Number of Activities
 										</label>
 										<select
-											id="constraintVariability"
-											name="constraintVariability"
-											value={filters.constraintVariability}
+											id="activities"
+											name="activities"
+											value={filters.activities}
 											onChange={handleFilterChange}
 											className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
 										>
 											<option value="">All</option>
-											<option value="low">Low (0-0.33)</option>
-											<option value="medium">Medium (0.34-0.66)</option>
-											<option value="high">High (&gt;0.66)</option>
+											<option value="activities_asc">Low to High</option>
+											<option value="activities_desc">High to Low</option>
 										</select>
 									</div>
 									<div className="w-1/3">
 										<label
-											htmlFor="separability"
+											htmlFor="constraints"
 											className="block text-sm font-medium text-gray-700 mb-1"
 										>
-											Separability
+											Number of Constraints
 										</label>
 										<select
-											id="separability"
-											name="separability"
-											value={filters.separability}
+											id="constraints"
+											name="constraints"
+											value={filters.constraints}
 											onChange={handleFilterChange}
 											className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
 										>
 											<option value="">All</option>
-											<option value="low">Low (0-0.33)</option>
-											<option value="medium">Medium (0.34-0.66)</option>
-											<option value="high">High (0.67-1)</option>
-										</select>
-									</div>
-									<div className="w-1/3">
-										<label
-											htmlFor="density"
-											className="block text-sm font-medium text-gray-700 mb-1"
-										>
-											Density
-										</label>
-										<select
-											id="density"
-											name="density"
-											value={filters.density}
-											onChange={handleFilterChange}
-											className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-										>
-											<option value="">All</option>
-											<option value="low">Low (0-0.5)</option>
-											<option value="medium">Medium (0.5-1.5)</option>
-											<option value="high">High (&gt;1.5)</option>
-										</select>
-									</div>
-								</div>
-								<div className="flex justify-center space-x-4">
-									<div className="w-1/3">
-										<label
-											htmlFor="purpose"
-											className="block text-sm font-medium text-gray-700 mb-1"
-										>
-											Purpose
-										</label>
-										<select
-											id="purpose"
-											name="purpose"
-											value={filters.purpose}
-											onChange={handleFilterChange}
-											className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-										>
-											<option value="">All</option>
-											<option value="analysis">Analysis</option>
-											<option value="verification">Verification</option>
-											<option value="monitoring">Monitoring</option>
+											<option value="constraints_asc">Low to High</option>
+											<option value="constraints_desc">High to Low</option>
 										</select>
 									</div>
 									<div className="w-1/3">
@@ -427,33 +422,66 @@ export default function Repo() {
 											<option value="other">Other</option>
 										</select>
 									</div>
+								</div>
+								<div className="flex justify-center space-x-4">
 									<div className="w-1/3">
 										<label
-											htmlFor="sort"
+											htmlFor="density"
 											className="block text-sm font-medium text-gray-700 mb-1"
 										>
-											Sort by
+											Density
 										</label>
 										<select
-											id="sort"
-											name="sort"
-											value={filters.sort}
+											id="density"
+											name="density"
+											value={filters.density}
 											onChange={handleFilterChange}
 											className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
 										>
-											<option value="">No sorting</option>
-											<option value="constraints_asc">
-												Constraints (Low to High)
-											</option>
-											<option value="constraints_desc">
-												Constraints (High to Low)
-											</option>
-											<option value="separability_asc">
-												Separability (Low to High)
-											</option>
-											<option value="separability_desc">
-												Separability (High to Low)
-											</option>
+											<option value="">All</option>
+											<option value="low">Low (0-0.5)</option>
+											<option value="medium">Medium (0.5-1.5)</option>
+											<option value="high">High (&gt;1.5)</option>
+										</select>
+									</div>
+									<div className="w-1/3">
+										<label
+											htmlFor="separability"
+											className="block text-sm font-medium text-gray-700 mb-1"
+										>
+											Separability
+										</label>
+										<select
+											id="separability"
+											name="separability"
+											value={filters.separability}
+											onChange={handleFilterChange}
+											className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+										>
+											<option value="">All</option>
+											<option value="low">Low (0-0.33)</option>
+											<option value="medium">Medium (0.34-0.66)</option>
+											<option value="high">High (0.67-1)</option>
+										</select>
+									</div>
+									<div className="w-1/3">
+										<label
+											htmlFor="constraintVariability"
+											className="block text-sm font-medium text-gray-700 mb-1"
+										>
+											Constraint Variability
+										</label>
+										<select
+											id="constraintVariability"
+											name="constraintVariability"
+											value={filters.constraintVariability}
+											onChange={handleFilterChange}
+											className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+										>
+											<option value="">All</option>
+											<option value="low">Low (0-0.33)</option>
+											<option value="medium">Medium (0.34-0.66)</option>
+											<option value="high">High (&gt;0.66)</option>
 										</select>
 									</div>
 								</div>
@@ -540,7 +568,7 @@ export default function Repo() {
 											htmlFor="name"
 											className="block text-sm font-medium text-gray-700 mb-1"
 										>
-											Name
+											Keywords
 										</label>
 										<input
 											type="text"
@@ -549,7 +577,7 @@ export default function Repo() {
 											value={filters.name}
 											onChange={handleFilterChange}
 											className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-											placeholder="Filter by name"
+											placeholder="order,employee,delivery"
 										/>
 									</div>
 								</div>
@@ -677,17 +705,20 @@ export default function Repo() {
 										<tr key={index}>
 											{displayType === "all" ? (
 												<>
-													<td
-														key={item._id}
-														className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap"
-													>
-														{" "}
-														<Link
-															href={`/repo/models/${item._id}`}
-															className="text-blue hover:text-indigo"
-														>
-															{item.modelName}
-														</Link>
+													<td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
+														<div className="flex items-center">
+															{(session?.user?.role === "admin" ||
+																session?.user?.role === "moderator" ||
+																session?.user?._id === item.author?._id) && (
+																<VisibilityIcon isPublic={item.public} />
+															)}
+															<Link
+																href={`/repo/models/${item._id}`}
+																className="text-blue hover:text-green"
+															>
+																{item.modelName}
+															</Link>
+														</div>
 													</td>
 													{item.metrics && allMetrics.length > 0 ? (
 														allMetrics.map((headerMetric) => {
@@ -723,24 +754,14 @@ export default function Repo() {
 												<>
 													<td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
 														<div className="flex items-center">
-															<svg
-																xmlns="http://www.w3.org/2000/svg"
-																className="mr-2 h-4 w-4 text-blue-500"
-																fill="none"
-																viewBox="0 0 24 24"
-																stroke="currentColor"
-															>
-																<path
-																	strokeLinecap="round"
-																	strokeLinejoin="round"
-																	strokeWidth={2}
-																	d="M12 4.5C8.32 4.5 5.03 7.12 3.24 10.12c-.08.14-.08.31 0 .45C5.03 16.88 8.32 19.5 12 19.5s6.97-2.62 8.76-5.88c.08-.14.08-.31 0-.45C18.97 7.12 15.68 4.5 12 4.5zM12 15a3 3 0 100-6 3 3 0 000 6z"
-																/>
-															</svg>{" "}
-															{"  "}
+															{(session?.user?.role === "admin" ||
+																session?.user?.role === "moderator" ||
+																session?.user?._id === item.author?._id) && (
+																<VisibilityIcon isPublic={item.public} />
+															)}
 															<Link
 																href={`/repo/models/${item._id}`}
-																className=" text-blue hover:text-green"
+																className="text-blue hover:text-green"
 															>
 																{item.name}
 															</Link>
@@ -817,31 +838,23 @@ export default function Repo() {
 												</>
 											) : (
 												<>
-													<td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap break-words">
+													<td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words">
 														<div className="flex items-center">
-															<svg
-																xmlns="http://www.w3.org/2000/svg"
-																className="mr-2 h-4 w-4 text-blue-500"
-																fill="none"
-																viewBox="0 0 24 24"
-																stroke="currentColor"
-															>
-																<path
-																	strokeLinecap="round"
-																	strokeLinejoin="round"
-																	strokeWidth={2}
-																	d="M12 4.5C8.32 4.5 5.03 7.12 3.24 10.12c-.08.14-.08.31 0 .45C5.03 16.88 8.32 19.5 12 19.5s6.97-2.62 8.76-5.88c.08-.14.08-.31 0-.45C18.97 7.12 15.68 4.5 12 4.5zM12 15a3 3 0 100-6 3 3 0 000 6z"
-																/>
-															</svg>{" "}
-															{"  "}
+															{(session?.user?.role === "admin" ||
+																session?.user?.role === "moderator" ||
+																session?.user?._id === item.author?._id) && (
+																<VisibilityIcon isPublic={item.public} />
+															)}
+
 															<Link
 																href={`/repo/metrics/${item._id}`}
-																className=" text-blue hover:text-green"
+																className="text-blue hover:text-green"
 															>
 																{item.ID}
 															</Link>
 														</div>
 													</td>
+
 													<td className="px-6 py-4 text-sm text-gray-800 whitespace-normal break-words">
 														{item.name}
 													</td>
