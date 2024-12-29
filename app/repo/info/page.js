@@ -7,40 +7,35 @@ const Legend = () => {
 
 	const faqs = [
 		{
-			question: "How metrics are calculated?",
-			answer: "TO-DO",
+			question: "How are metrics calculated?",
+			answer:
+				"Eight metrics - number of activities, number of constraints, consistency, semantic redundancy, separability, constraint variability, density, and size - are automatically calculated and assigned on the server side. Additionally, two characteristics, application domain and purpose, must be specified by a model's author.",
 		},
 		{
-			question:
-				"When do I need to upload .decl and .dot files when creating a model?",
-			answer: "TO-DO",
+			question: "When do I need to upload .decl and .dot files when creating a model?",
+			answer:
+				"You need to upload a .decl file if you want the eight metrics to be automatically calculated.",
 		},
 		{
-			question: "Which of the metrics are calculated?",
-			answer: "TO-DO",
-		},
-		{
-			question:
-				"Where can I specify the purpose and application domain of a model?",
-			answer: "TO-DO",
+			question: "Where can I specify the purpose and application domain of a model?",
+			answer: "You can specify them in the model editing panel.",
 		},
 		{
 			question: "Where are uploaded files stored?",
-			answer: "TO-DO",
+			answer: "Uploaded files are stored in an Amazon Web Services (AWS) S3 bucket.",
 		},
 		{
-			question:
-				"Do you recommend any template for .txt, .decl, .dot, and image?",
+			question: "Do you recommend any templates for .txt, .decl, .dot, and images?",
 			answer:
-				"The recommendation is to export automata, Declare model, and textual representation from RuM. Alongside that, take a screenshot of the image from RuM.",
+				"We recommend exporting automata, Declare models, and textual representations from the desktop application called RuM - Rule Mining Made Simple. Additionally, take a screenshot of your model's image in RuM.",
 		},
 		{
-			question:
-				"What is the difference between text representation and description?",
+			question: "What is the difference between textual representation and description?",
 			answer:
-				"Text representation typically includes details like the automata, Declare model, and textual representation exported from RuM. Descriptions, on the other hand, provide contextual information and explanations about the model.",
+				"Textual representation, exported from RuM, lists activities and constraints. Descriptions provide contextual information and explanations about the model, focusing on what the process is about.",
 		},
 	];
+
 
 	const renderBibtex = () => {
 		return (
@@ -65,7 +60,7 @@ const Legend = () => {
 								Getting Started
 							</h1>
 							<div className="flex space-x-4">
-							<button
+								<button
 									onClick={() => router.push("/api-docs")}
 									className="bg-blue hover:bg-orange hover:text-black text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out"
 								>
@@ -77,7 +72,7 @@ const Legend = () => {
 								>
 									Back
 								</button>
-								
+
 							</div>
 						</div>
 

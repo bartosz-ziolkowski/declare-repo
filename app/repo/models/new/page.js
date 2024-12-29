@@ -144,8 +144,10 @@ export default function CreateDeclareModel() {
 				} else {
 					const data = await response.json();
 					toast.error(data.message);
+					console.log(err);
 				}
 			} catch (error) {
+				console.log(error);
 				setIsError(error);
 			} finally {
 				setIsSubmitting(false);
