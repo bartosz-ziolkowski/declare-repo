@@ -144,28 +144,33 @@ export const updateMetricDetails = errorHandler(async (req, { params }) => {
 });
 
 export const newMetric = errorHandler(async (req) => {
-  const session = await getToken({ req });
-  const body = await req.json();
+	const session = await getToken({ req });
+	const body = await req.json();
 
-  let authorId;
+	let authorId;
 
-  if (session && session.user && session.user.id) {
-    authorId = session.user.id;
-  } else {
-    const fallbackUser = await User.findOne({ email: "tester@dtu.dk" });
-    if (!fallbackUser) {
-      return NextResponse.json(
-        { success: false, message: "Test user not found" },
-        { status: 500 }
-      );
-    }
-    authorId = fallbackUser._id;
-  }
+	if (body.author) {
+		authorId = body.author;
+	} else if (session && session.user && session.user._id) {
+		authorId = session.user._id;
+	} else {
+		const fallbackUser = await User.findOne({ email: "tester@dtu.dk" });
+		if (!fallbackUser) {
+			return NextResponse.json(
+				{ success: false, message: "Test user not found" },
+				{ status: 500 }
+			);
+		}
+		authorId = fallbackUser._id;
+	}
 
-  const newMetric = await Metric.create({ ...body, author: authorId });
+	authorId = authorId.toString();
 
-  return NextResponse.json({ success: true, data: newMetric }, { status: 201 });
+	const newMetric = await Metric.create({ ...body, author: authorId });
+
+	return NextResponse.json({ success: true, data: newMetric }, { status: 201 });
 });
+
 
 export const deleteMetric = errorHandler(async (req, { params }) => {
 	const { id } = params;

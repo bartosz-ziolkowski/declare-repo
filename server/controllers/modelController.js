@@ -20,7 +20,6 @@ import mongoose from "mongoose";
 
 export const allModels = errorHandler(async (req) => {
 	const resPerPage = 6;
-	const session = await getToken({ req });
 
 	const { searchParams } = new URL(req.url);
 	const queryStr = {};
@@ -29,23 +28,12 @@ export const allModels = errorHandler(async (req) => {
 		queryStr[key] = value;
 	});
 
-	let visibilityQuery = { public: true };
-
-	if (session?.user) {
-		if (session.user.role === "moderator" || session.user.role === "admin") {
-			visibilityQuery = {};
-		} else {
-			visibilityQuery = {
-				$or: [{ public: true }, { author: session.user._id, public: false }],
-			};
-		}
-	}
-
-	const baseQuery = DeclareModel.find(visibilityQuery);
-	const apiFilters = new APIFilters(baseQuery, queryStr).filter().sort();
+	const apiFilters = new APIFilters(DeclareModel.find(), queryStr).filter().sort();
+	
 	apiFilters.search();
 
 	const totalCount = await DeclareModel.countDocuments();
+	
 	const filteredCount = await DeclareModel.countDocuments(
 		apiFilters.query.getFilter(),
 	);
@@ -144,21 +132,8 @@ export const newDeclareModel = errorHandler(async (req) => {
 		);
 	}
 
-	const session = await getToken({ req });
 	let authorId;
-
-	if (session?.user?._id) {
-		authorId = session.user._id;
-	} else {
-		const fallbackUser = await User.findOne({ email: "tester@dtu.dk" });
-		if (!fallbackUser) {
-			return NextResponse.json(
-				{ success: false, message: "Test user not found" },
-				{ status: 500 }
-			);
-		}
-		authorId = fallbackUser._id;
-	}
+	const session = await getToken({ req });
 
 	const contentType = req.headers.get("Content-Type");
 
@@ -177,6 +152,35 @@ export const newDeclareModel = errorHandler(async (req) => {
 		body = Object.fromEntries(formData.entries());
 	}
 
+	if (session?.user?._id) {
+		authorId = session.user._id;
+	} else if (body.author && body.author.trim() !== "") {
+		try {
+			authorId = body.author.trim();
+			const authorExists = await User.findById(authorId);
+			if (!authorExists) {
+				return NextResponse.json(
+					{ success: false, message: "Provided author ID does not exist" },
+					{ status: 400 }
+				);
+			}
+		} catch (error) {
+			return NextResponse.json(
+				{ success: false, message: "Invalid author ID format" },
+				{ status: 400 }
+			);
+		}
+	} else {
+		const fallbackUser = await User.findOne({ email: "tester@dtu.dk" });
+		if (!fallbackUser) {
+			return NextResponse.json(
+				{ success: false, message: "Test user not found" },
+				{ status: 500 }
+			);
+		}
+		authorId = fallbackUser._id;
+	}
+
 	const modelData = {
 		name: body.name || body["name"],
 		description: body.description || body["description"],
@@ -188,7 +192,7 @@ export const newDeclareModel = errorHandler(async (req) => {
 		textRepURL: body.textRepUrl || body["textRepUrl"] || null,
 		imageURL: body.imageUrl || body["imageUrl"] || null,
 		automataUrl: body.automataUrl || body["automataUrl"] || null,
-		author: authorId,
+		author: authorId
 	};
 
 	if (!modelData.name || !modelData.description) {
@@ -197,6 +201,7 @@ export const newDeclareModel = errorHandler(async (req) => {
 			{ status: 400 }
 		);
 	}
+
 
 	let fileContent = null;
 	if (modelData.contentURL && modelData.contentURL.trim() !== "") {
@@ -503,7 +508,6 @@ export const allModelsAndMetrics = errorHandler(async (req) => {
 
 	const page = Number.parseInt(queryStr.page) || 1;
 	const resPerPage = 6;
-	const skip = (page - 1) * resPerPage;
 
 	const pipeline = [
 		{
@@ -511,8 +515,8 @@ export const allModelsAndMetrics = errorHandler(async (req) => {
 				from: "declareModel",
 				localField: "declareModel",
 				foreignField: "_id",
-				as: "modelData",
-			},
+				as: "modelData"
+			}
 		},
 		{ $unwind: "$modelData" },
 		{
@@ -520,8 +524,8 @@ export const allModelsAndMetrics = errorHandler(async (req) => {
 				from: "metric",
 				localField: "metric",
 				foreignField: "_id",
-				as: "metricData",
-			},
+				as: "metricData"
+			}
 		},
 		{ $unwind: "$metricData" },
 		{
@@ -530,36 +534,37 @@ export const allModelsAndMetrics = errorHandler(async (req) => {
 				modelName: { $first: "$modelData.name" },
 				modelCreatedAt: { $first: "$modelData.createdAt" },
 				public: { $first: "$modelData.public" },
+				author: { $first: "$modelData.author" },
+				applicationDomain: { $first: "$modelData.applicationDomain" },
 				metrics: {
 					$push: {
 						metricId: "$metricData._id",
 						metricID: "$metricData.ID",
 						metricName: "$metricData.name",
 						formula: "$metricData.formula",
-						calculationResult: "$calculationResult",
-					},
-				},
-			},
-		},
-		{ $sort: { modelName: 1 } },
-		{ $skip: skip },
-		{ $limit: resPerPage },
+						calculationResult: "$calculationResult"
+					}
+				}
+			}
+		}
 	];
 
-	const modelsWithMetrics = await DeclareAndMetric.aggregate(pipeline);
+	const apiFilters = new APIFilters(pipeline, queryStr);
+	const filteredPipeline = apiFilters
+		.search()
+		.filter()
+		.sort()
+		.paginate(resPerPage)
+		.query;
+
+	const modelsWithMetrics = await DeclareAndMetric.aggregate(filteredPipeline);
 
 	const totalCountPipeline = [
-		{
-			$group: {
-				_id: "$declareModel",
-			},
-		},
-		{
-			$count: "total",
-		},
+		...pipeline.slice(0, -1),
+		{ $count: "total" }
 	];
-	const [totalCountResult] =
-		await DeclareAndMetric.aggregate(totalCountPipeline);
+
+	const [totalCountResult] = await DeclareAndMetric.aggregate(totalCountPipeline);
 	const totalCount = totalCountResult ? totalCountResult.total : 0;
 
 	return NextResponse.json({
@@ -567,6 +572,6 @@ export const allModelsAndMetrics = errorHandler(async (req) => {
 		totalCount,
 		filteredCount: totalCount,
 		resPerPage,
-		modelsWithMetrics,
+		modelsWithMetrics
 	});
 });

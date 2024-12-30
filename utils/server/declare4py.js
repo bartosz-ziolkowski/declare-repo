@@ -21,13 +21,12 @@ async function runPythonCommand(modelPath) {
 				commands: [
 					"#!/bin/bash",
 					"cd /home/ubuntu/declare4py_project",
-					`/home/ubuntu/declare4py_project/venv/bin/python3 ltlf_checker.py --model "${modelPath}" --json-output`,
+					`timeout 30s /home/ubuntu/declare4py_project/venv/bin/python3 ltlf_checker.py --model "${modelPath}" --json-output`,
 				],
 			},
 		});
 
 		const response = await client.send(command);
-
 		await new Promise((resolve) => setTimeout(resolve, 5000));
 
 		const commandId = response.Command.CommandId;
@@ -48,15 +47,19 @@ async function runPythonCommand(modelPath) {
 
 async function waitForCommandCompletion(client, commandId, instanceId) {
 	const maxAttempts = 15;
-	const delayBetweenAttempts = 6000;
+	const delayBetweenAttempts = 1000;
 	let attempts = 0;
 
-	const complexResponse = {
+	const timeoutResponse = {
 		success: false,
-		message: "Too complex to compute",
+		message: "Computation timed out",
 	};
 
 	const badResponse = { success: false };
+
+	const timeout = setTimeout(() => {
+		return timeoutResponse;
+	}, 35000);
 
 	while (attempts < maxAttempts) {
 		try {
@@ -68,13 +71,16 @@ async function waitForCommandCompletion(client, commandId, instanceId) {
 			const response = await client.send(command);
 			switch (response.Status) {
 				case "Success":
+					clearTimeout(timeout);
 					return response.StandardOutputContent;
 				case "Failed":
+					clearTimeout(timeout);
 					return badResponse;
 				case "InProgress":
 				case "Pending":
 					break;
 				default:
+					clearTimeout(timeout);
 					return badResponse;
 			}
 		} catch (error) {
@@ -84,7 +90,8 @@ async function waitForCommandCompletion(client, commandId, instanceId) {
 			) {
 				attempts++;
 				if (attempts >= maxAttempts) {
-					return complexResponse;
+					clearTimeout(timeout);
+					return timeoutResponse;
 				}
 				await new Promise((resolve) =>
 					setTimeout(resolve, delayBetweenAttempts),
@@ -97,7 +104,8 @@ async function waitForCommandCompletion(client, commandId, instanceId) {
 		await new Promise((resolve) => setTimeout(resolve, delayBetweenAttempts));
 	}
 
-	return complexResponse;
+	clearTimeout(timeout);
+	return timeoutResponse;
 }
 
 export async function verifyModelConsistencyAndRedundancy(modelPath) {
@@ -119,8 +127,8 @@ function parseDeclare4Py(response) {
 		return standardResponse;
 	}
 
-	if (response.message === "Too complex to compute") {
-		standardResponse.message = "Computing timed out";
+	if (response.result?.message === "Computation timed out") {
+		standardResponse.message = "Computation timed out";
 		return standardResponse;
 	}
 
@@ -167,4 +175,6 @@ function parseDeclare4Py(response) {
 			"Failed to check consistency or semantical redundancy";
 		return standardResponse;
 	}
+
+	return standardResponse;
 }

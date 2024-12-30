@@ -61,11 +61,11 @@ const apiConfig = {
 						}
 					}
 				},
-				"responses": {
-					"201": {
+				responses: {
+					201: {
 						"description": "User successfully registered"
 					},
-					"400": {
+					400: {
 						"description": "Invalid input"
 					}
 				}
@@ -77,146 +77,143 @@ const apiConfig = {
 				tags: ["Repository"],
 				summary: "Get all models with metrics",
 				description: "Returns all models merged with their metrics",
+				parameters: [
+					{
+						name: "page",
+						in: "query",
+						schema: { type: "integer", default: 1, minimum: 1 },
+						description: "Page number for pagination"
+					},
+					{
+						name: "activities",
+						in: "query",
+						schema: {
+							type: "string",
+							enum: ["activities_asc", "activities_desc"]
+						},
+						description: "Sort by number of activities"
+					},
+					{
+						name: "constraints",
+						in: "query",
+						schema: {
+							type: "string",
+							enum: ["constraints_asc", "constraints_desc"]
+						},
+						description: "Sort by number of constraints"
+					},
+					{
+						name: "applicationDomain",
+						in: "query",
+						schema: { type: "string" },
+						description: "Filter by application domain"
+					},
+					{
+						name: "density",
+						in: "query",
+						schema: {
+							type: "string",
+							enum: ["low", "medium", "high"]
+						},
+						description: "Filter by density range (low: 0-0.5, medium: 0.5-1.5, high: >1.5)"
+					},
+					{
+						name: "purpose",
+						in: "query",
+						schema: { type: "string" },
+						description: "Filter by purpose"
+					},
+					{
+						name: "constraintVariability",
+						in: "query",
+						schema: {
+							type: "string",
+							enum: ["low", "medium", "high"]
+						},
+						description: "Filter by constraint variability (low: 0-0.33, medium: 0.34-0.66, high: >0.66)"
+					}
+				],
 				responses: {
 					200: {
 						description: "Successful response",
 						content: {
 							"application/json": {
 								schema: {
-									type: "array",
-									items: {
-										$ref: "#/components/schemas/ModelWithMetrics",
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		"/api/repo/metrics": {
-			get: {
-				tags: ["Metrics"],
-				summary: "Get all metrics",
-				responses: {
-					200: {
-						description: "List of all metrics",
-						content: {
-							"application/json": {
-								schema: {
-									$ref: "#/components/schemas/MetricResponse",
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		"/api/repo/metrics/{id}": {
-			get: {
-				tags: ["Metrics"],
-				summary: "Get metric by ID",
-				parameters: [
-					{
-						name: "id",
-						in: "path",
-						required: true,
-						schema: {
-							type: "string",
-						},
-					},
-				],
-				responses: {
-					200: {
-						description: "Metric details",
-						content: {
-							"application/json": {
-								schema: {
-									$ref: "#/components/schemas/Metric",
-								},
-							},
-						},
-					},
-				},
-			},
-			patch: {
-				tags: ["Metrics"],
-				summary: "Update metric",
-				parameters: [
-					{
-						name: "id",
-						in: "path",
-						required: true,
-						schema: {
-							type: "string",
-						},
-					},
-				],
-				requestBody: {
-					required: true,
-					content: {
-						"application/json": {
-							schema: {
-								type: "object",
-								properties: {
-									name: { type: "string" },
-									description: { type: "string" },
-									formula: { type: "string" },
-									reference: {
-										type: "object",
-										properties: {
-											name: { type: "string" },
-											url: { type: "string" },
+									type: "object",
+									properties: {
+										success: {
+											type: "boolean"
 										},
-									},
-								},
-								example: {
-									name: "Updated Metric Name",
-									description: "Updated Metric Description",
-									formula: "Updated Formula",
-									reference: {
-										name: "Reference Name",
-										url: "https://example.com/reference",
-									},
-								},
-							},
-						},
-					},
-				},
-				responses: {
-					200: {
-						description: "Metric updated successfully",
-					},
-					400: {
-						description: "Invalid input",
-					},
-				},
-			},
-			delete: {
-				tags: ["Metrics"],
-				summary: "Delete metric",
-				parameters: [
-					{
-						name: "id",
-						in: "path",
-						required: true,
-						schema: {
-							type: "string",
-						},
-					},
-				],
-				responses: {
-					200: {
-						description: "Metric deleted successfully",
-					},
-				},
-			},
+										totalCount: {
+											type: "integer"
+										},
+										filteredCount: {
+											type: "integer"
+										},
+										resPerPage: {
+											type: "integer"
+										},
+										modelsWithMetrics: {
+											type: "array",
+											items: {
+												$ref: "#/components/schemas/ModelWithMetrics"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		},
+
 		"/api/repo/models": {
 			get: {
 				tags: ["Models"],
-				summary: "Retrieve all models",
+				summary: "Get all models",
 				description: "Fetch a list of all models available in the repository, including metadata.",
+				parameters: [
+					{
+						name: "page",
+						in: "query",
+						schema: { type: "integer", default: 1, minimum: 1 },
+						description: "Page number for pagination"
+					},
+					{
+						name: "name",
+						in: "query",
+						schema: { type: "string" },
+						description: "Filter by keywords in name"
+					},
+					{
+						name: "author",
+						in: "query",
+						schema: { type: "string" },
+						description: "Filter by author name"
+					},
+					{
+						name: "sort",
+						in: "query",
+						schema: {
+							type: "string",
+							enum: ["createdAt_asc", "createdAt_desc"]
+						},
+						description: "Sort by creation date"
+					},
+					{
+						name: "createdAtStart",
+						in: "query",
+						schema: { type: "string", format: "date" },
+						description: "Filter by creation date range start"
+					},
+					{
+						name: "createdAtEnd",
+						in: "query",
+						schema: { type: "string", format: "date" },
+						description: "Filter by creation date range end"
+					}
+				],
 				responses: {
 					200: {
 						description: "Successful response containing a list of models",
@@ -301,6 +298,47 @@ const apiConfig = {
 			get: {
 				tags: ["Metrics"],
 				summary: "Get all metrics",
+				parameters: [
+					{
+						name: "page",
+						in: "query",
+						schema: { type: "integer", default: 1, minimum: 1 },
+						description: "Page number for pagination"
+					},
+					{
+						name: "name",
+						in: "query",
+						schema: { type: "string" },
+						description: "Filter by keywords in name"
+					},
+					{
+						name: "author",
+						in: "query",
+						schema: { type: "string" },
+						description: "Filter by author name"
+					},
+					{
+						name: "sort",
+						in: "query",
+						schema: {
+							type: "string",
+							enum: ["createdAt_asc", "createdAt_desc"]
+						},
+						description: "Sort by creation date"
+					},
+					{
+						name: "createdAtStart",
+						in: "query",
+						schema: { type: "string", format: "date" },
+						description: "Filter by creation date range start"
+					},
+					{
+						name: "createdAtEnd",
+						in: "query",
+						schema: { type: "string", format: "date" },
+						description: "Filter by creation date range end"
+					}
+				],
 				responses: {
 					200: {
 						description: "List of all metrics",
@@ -479,6 +517,106 @@ const apiConfig = {
 				},
 			},
 		},
+		"/api/repo/metrics/{id}": {
+			get: {
+				tags: ["Metrics"],
+				summary: "Get metric by ID",
+				parameters: [
+					{
+						name: "id",
+						in: "path",
+						required: true,
+						schema: {
+							type: "string",
+						},
+					},
+				],
+				responses: {
+					200: {
+						description: "Metric details",
+						content: {
+							"application/json": {
+								schema: {
+									$ref: "#/components/schemas/Metric",
+								},
+							},
+						},
+					},
+				},
+			},
+			patch: {
+				tags: ["Metrics"],
+				summary: "Update metric",
+				parameters: [
+					{
+						name: "id",
+						in: "path",
+						required: true,
+						schema: {
+							type: "string",
+						},
+					},
+				],
+				requestBody: {
+					required: true,
+					content: {
+						"application/json": {
+							schema: {
+								type: "object",
+								properties: {
+									name: { type: "string" },
+									description: { type: "string" },
+									formula: { type: "string" },
+									reference: {
+										type: "object",
+										properties: {
+											name: { type: "string" },
+											url: { type: "string" },
+										},
+									},
+								},
+								example: {
+									name: "Updated Metric Name",
+									description: "Updated Metric Description",
+									formula: "Updated Formula",
+									reference: {
+										name: "Reference Name",
+										url: "https://example.com/reference",
+									},
+								},
+							},
+						},
+					},
+				},
+				responses: {
+					200: {
+						description: "Metric updated successfully",
+					},
+					400: {
+						description: "Invalid input",
+					},
+				},
+			},
+			delete: {
+				tags: ["Metrics"],
+				summary: "Delete metric",
+				parameters: [
+					{
+						name: "id",
+						in: "path",
+						required: true,
+						schema: {
+							type: "string",
+						},
+					},
+				],
+				responses: {
+					200: {
+						description: "Metric deleted successfully",
+					},
+				},
+			},
+		},
 	},
 	components: {
 		schemas: {
@@ -491,9 +629,9 @@ const apiConfig = {
 					resPerPage: { type: "integer" },
 					models: {
 						type: "array",
-						items: { $ref: "#/components/schemas/Model" },
-					},
-				},
+						items: { $ref: "#/components/schemas/Model" }
+					}
+				}
 			},
 			Model: {
 				type: "object",
@@ -501,22 +639,23 @@ const apiConfig = {
 					_id: { type: "string" },
 					name: { type: "string" },
 					description: { type: "string" },
-					contentURL: { type: "string", nullable: true },
-					textRepURL: { type: "string", nullable: true },
-					imageURL: { type: "string", nullable: true },
-					automataUrl: { type: "string", nullable: true },
+					contentURL: { type: "string", format: "uri", nullable: true },
+					textRepURL: { type: "string", format: "uri", nullable: true },
+					imageURL: { type: "string", format: "uri", nullable: true },
+					automataUrl: { type: "string", format: "uri", nullable: true },
 					public: { type: "boolean" },
-					reference: {
-						type: "object",
-						properties: {
-							name: { type: "string", nullable: true },
-							url: { type: "string", nullable: true },
-						},
-					},
+					reference: { $ref: "#/components/schemas/Reference" },
 					author: { $ref: "#/components/schemas/Author" },
 					createdAt: { type: "string", format: "date-time" },
-					updatedAt: { type: "string", format: "date-time" },
-				},
+					updatedAt: { type: "string", format: "date-time" }
+				}
+			},
+			Reference: {
+				type: "object",
+				properties: {
+					name: { type: "string", nullable: true },
+					url: { type: "string", format: "uri", nullable: true }
+				}
 			},
 			MetricResponse: {
 				type: "object",
@@ -527,9 +666,9 @@ const apiConfig = {
 					resPerPage: { type: "integer" },
 					metrics: {
 						type: "array",
-						items: { $ref: "#/components/schemas/Metric" },
-					},
-				},
+						items: { $ref: "#/components/schemas/Metric" }
+					}
+				}
 			},
 			Metric: {
 				type: "object",
@@ -540,85 +679,86 @@ const apiConfig = {
 					description: { type: "string" },
 					formula: { type: "string" },
 					public: { type: "boolean" },
-					reference: {
-						type: "object",
-						properties: {
-							name: { type: "string" },
-							url: { type: "string" },
-						},
-					},
+					reference: { $ref: "#/components/schemas/Reference" },
 					author: {
-						type: "object",
-						nullable: true,
+						oneOf: [
+							{ $ref: "#/components/schemas/Author" },
+							{ type: "null" }
+						]
 					},
 					createdAt: { type: "string", format: "date-time" },
-					updatedAt: { type: "string", format: "date-time" },
-				},
+					updatedAt: { type: "string", format: "date-time" }
+				}
 			},
 			Author: {
 				type: "object",
-				required: ["name", "email", "password"],
+				required: ["name", "email"],
 				properties: {
 					_id: { type: "string" },
-					name: {
-						type: "string",
-						minLength: 1,
-						description: "User's full name",
-					},
-					email: {
-						type: "string",
-						format: "email",
-						description: "User's email address",
-						pattern: "^w+([.-]?w+)*@w+([.-]?w+)*(.w{2,3})+$",
-					},
-					password: {
-						type: "string",
-						minLength: 6,
-						writeOnly: true,
-						description: "User's password",
-					},
+					name: { type: "string", minLength: 1 },
+					email: { type: "string", format: "email" },
 					role: {
 						type: "string",
 						enum: ["user", "admin", "moderator"],
-						default: "user",
-						description: "User's role in the system",
+						default: "user"
 					},
-					createdAt: {
-						type: "string",
-						format: "date-time",
-						description: "Timestamp when the user was created",
-					},
-					updatedAt: {
-						type: "string",
-						format: "date-time",
-						description: "Timestamp when the user was last updated",
-					},
-				},
+					createdAt: { type: "string", format: "date-time" },
+					updatedAt: { type: "string", format: "date-time" }
+				}
+			},
+			ModelWithMetrics: {
+				type: "object",
+				properties: {
+					_id: { type: "string" },
+					modelName: { type: "string" },
+					modelCreatedAt: { type: "string", format: "date-time" },
+					public: { type: "boolean" },
+					author: { type: "string" },
+					applicationDomain: { type: "string", nullable: true },
+					metrics: {
+						type: "array",
+						items: {
+							type: "object",
+							properties: {
+								metricId: { type: "string" },
+								metricID: { type: "string" },
+								metricName: { type: "string" },
+								formula: { type: "string" },
+								calculationResult: {
+									oneOf: [
+										{ type: "number" },
+										{ type: "string" },
+										{
+											type: "object",
+											properties: {
+												message: { type: "string" },
+												success: { type: "boolean" },
+												satisfiable: { type: "boolean" },
+												result: { type: "string" },
+												redundantCount: { type: "integer" }
+											}
+										}
+									]
+								}
+							}
+						}
+					}
+				}
 			},
 			UserRegistration: {
 				type: "object",
+				required: ["name", "email", "password"],
 				properties: {
-					name: {
-						type: "string",
-						minLength: 1,
-						description: "User's full name",
-					},
-					email: {
-						type: "string",
-						format: "email",
-						description: "User's email address",
-						pattern: "^w+([.-]?w+)*@w+([.-]?w+)*(.w{2,3})+$",
-					},
+					name: { type: "string", minLength: 1 },
+					email: { type: "string", format: "email" },
 					password: {
 						type: "string",
 						minLength: 6,
-						writeOnly: true,
-						description: "User's password",
-					},
-				},
-				required: ["name", "email", "password"],
-			},
-		},
+						writeOnly: true
+					}
+				}
+			}
+		}
 	},
 };
 

@@ -91,11 +91,11 @@ const DeclareModel = ({ params }) => {
 
 			setPurpose(
 				data.metrics.find((metric) => metric.ID === "SO1")?.calculationResult ||
-					"custom",
+				"custom",
 			);
 			setApplicationDomain(
 				data.metrics.find((metric) => metric.ID === "SO2")?.calculationResult ||
-					"custom",
+				"custom",
 			);
 
 			if (data.model.textRepURL) {
@@ -227,11 +227,10 @@ const DeclareModel = ({ params }) => {
 		return (
 			<button
 				onClick={onToggle}
-				className={`flex items-center px-4 py-2 rounded-md transition-colors ${
-					isVisible
-						? "bg-green-500 hover:bg-green-600"
-						: "bg-gray-400 hover:bg-gray-500"
-				} text-white`}
+				className={`flex items-center px-4 py-2 rounded-md transition-colors ${isVisible
+					? "bg-green-500 hover:bg-green-600"
+					: "bg-gray-400 hover:bg-gray-500"
+					} text-white`}
 			>
 				{isVisible ? (
 					<svg
@@ -274,7 +273,7 @@ const DeclareModel = ({ params }) => {
 					<h1 className="text-2xl sm:text-3xl font-bold break-words">
 						{model?.name}
 					</h1>
-					{(userRole === "admin" || userRole === "moderator") && (
+					{isAuthor && (
 						<VisibilityToggle
 							isVisible={model?.public}
 							onToggle={() => handleVisibilityToggle()}
@@ -570,9 +569,9 @@ const DeclareModel = ({ params }) => {
 													<span className="px-3 py-1 bg-gray text-white rounded-full font-medium">
 														N/A
 													</span>
-												) : !metric.calculationResult.success ? (
+												) : metric.calculationResult.message === "Computation timed out ⚠️" ? (
 													<span className="px-3 py-1 bg-yellow text-black rounded-full font-medium">
-														{metric.calculationResult.message} ⚠️
+														Computation timed out ⚠️
 													</span>
 												) : metric.calculationResult.satisfiable ? (
 													<span className="px-3 py-1 bg-green text-white rounded-full font-medium">
@@ -583,6 +582,7 @@ const DeclareModel = ({ params }) => {
 														Inconsistent ✗
 													</span>
 												)}
+
 											</div>
 
 											<p className="text-gray-700 mt-4">
@@ -625,10 +625,13 @@ const DeclareModel = ({ params }) => {
 													<span className="px-3 py-1 bg-gray text-white rounded-full font-medium">
 														N/A
 													</span>
+												) : metric.calculationResult.message === "Computation timed out ⚠️" ? (
+													<span className="px-3 py-1 bg-yellow text-black rounded-full font-medium">
+														Computation timed out ⚠️
+													</span>
 												) : metric.calculationResult.redundantCount > 0 ? (
 													<span className="px-3 py-1 bg-yellow text-black rounded-full font-medium">
-														{metric.calculationResult.redundantCount} Redundant
-														Constraints ⚠️
+														{metric.calculationResult.redundantCount} Redundant Constraints ⚠️
 													</span>
 												) : (
 													<span className="px-3 py-1 bg-green text-white rounded-full font-medium">

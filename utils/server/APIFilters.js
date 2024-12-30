@@ -59,39 +59,97 @@ class APIFilters {
 	filter() {
 		const queryCopy = { ...this.queryStr };
 		const removeFields = [
-			"page",
-			"name",
-			"author",
-			"createdAtStart",
-			"createdAtEnd",
-			"sort",
+			"page", "name", "author", "createdAtStart", "createdAtEnd", "sort",
+			"activities", "constraints", "density", "separability",
+			"constraintVariability", "applicationDomain", "purpose"
 		];
 		removeFields.forEach((el) => delete queryCopy[el]);
 
-		const filterObj = {};
+		const filterObj = { $and: [] };
 
 		if (this.queryStr.createdAtStart || this.queryStr.createdAtEnd) {
-			filterObj.createdAt = {};
-			if (this.queryStr.createdAtStart && this.queryStr.createdAtStart !== "") {
-				filterObj.createdAt.$gte = new Date(this.queryStr.createdAtStart);
+			const dateFilter = { createdAt: {} };
+			if (this.queryStr.createdAtStart) {
+				dateFilter.createdAt.$gte = new Date(this.queryStr.createdAtStart);
 			}
-			if (this.queryStr.createdAtEnd && this.queryStr.createdAtEnd !== "") {
-				filterObj.createdAt.$lte = new Date(this.queryStr.createdAtEnd);
+			if (this.queryStr.createdAtEnd) {
+				dateFilter.createdAt.$lte = new Date(this.queryStr.createdAtEnd);
 			}
+			filterObj.$and.push(dateFilter);
 		}
 
-		Object.keys(queryCopy).forEach((key) => {
-			if (queryCopy[key] !== "") {
-				filterObj[key] = queryCopy[key];
+		const metricFilters = {
+			density: {
+				metricID: "SN2",
+				ranges: {
+					low: { $lt: 0.5 },
+					medium: { $and: [{ $gte: 0.5 }, { $lte: 1.5 }] },
+					high: { $gt: 1.5 }
+				}
+			},
+			separability: {
+				metricID: "SN6",
+				ranges: {
+					low: { $lt: 0.33 },
+					medium: { $and: [{ $gte: 0.33 }, { $lte: 0.66 }] },
+					high: { $gt: 0.67 }
+				}
+			},
+			constraintVariability: {
+				metricID: "SN3",
+				ranges: {
+					low: { $lt: 0.33 },
+					medium: { $and: [{ $gte: 0.33 }, { $lte: 0.66 }] },
+					high: { $gt: 0.67 }
+				}
+			}
+		};
+
+		Object.entries(metricFilters).forEach(([filterType, config]) => {
+			if (this.queryStr[filterType]) {
+				const range = config.ranges[this.queryStr[filterType]];
+				if (range) {
+					filterObj.$and.push({
+						metrics: {
+							$elemMatch: {
+								metricID: config.metricID,
+								calculationResult: {
+									$ne: "N/A",
+									...(range.$and ? { $gte: range.$and[0].$gte, $lte: range.$and[1].$lte } : range)
+								}
+							}
+						}
+					});
+				}
 			}
 		});
 
-		if (Object.keys(filterObj).length > 0) {
-			if (this.isAggregate) {
-				this.query.push({ $match: filterObj });
-			} else {
-				this.query = this.query.find(filterObj);
-			}
+		if (this.queryStr.applicationDomain) {
+			filterObj.$and.push({
+				metrics: {
+					$elemMatch: {
+						metricID: "SO2",
+						calculationResult: this.queryStr.applicationDomain
+					}
+				}
+			});
+		}
+
+		if (this.queryStr.purpose) {
+			filterObj.$and.push({
+				metrics: {
+					$elemMatch: {
+						metricID: "SO1",
+						calculationResult: this.queryStr.purpose
+					}
+				}
+			});
+		}
+
+		if (filterObj.$and.length > 0) {
+			this.isAggregate
+				? this.query.push({ $match: filterObj })
+				: (this.query = this.query.find(filterObj));
 		}
 
 		return this;
@@ -99,17 +157,64 @@ class APIFilters {
 
 	sort() {
 		if (this.queryStr.sort) {
-			const [field, order] = this.queryStr.sort.split("_");
-			const sortOrder = order === "asc" ? 1 : -1;
+			let sortField = this.queryStr.sort;
+			let sortOrder = 1;
 
-			if (this.isAggregate) {
-				this.query.push({ $sort: { [field]: sortOrder } });
+			if (this.queryStr.sort.includes('_')) {
+				const [field, direction] = this.queryStr.sort.split('_');
+				sortField = field;
+				sortOrder = direction === 'desc' ? -1 : 1;
+			}
+
+			if (sortField === 'activities' || sortField === 'constraints') {
+				const metricID = sortField === 'activities' ? 'SN4' : 'SN5';
+				if (this.isAggregate) {
+					this.query.push({
+						$addFields: {
+							sortValue: {
+								$convert: {
+									input: {
+										$first: {
+											$map: {
+												input: {
+													$filter: {
+														input: "$metrics",
+														as: "m",
+														cond: { $eq: ["$$m.metricID", metricID] }
+													}
+												},
+												as: "metric",
+												in: {
+													$cond: [
+														{ $eq: ["$$metric.calculationResult", "N/A"] },
+														0,
+														{ $toDouble: "$$metric.calculationResult" }
+													]
+												}
+											}
+										}
+									},
+									to: "double",
+									onError: 0,
+									onNull: 0
+								}
+							}
+						}
+					});
+
+					this.query.push({ $sort: { sortValue: sortOrder } });
+				}
 			} else {
-				this.query = this.query.sort({ [field]: sortOrder });
+				if (this.isAggregate) {
+					this.query.push({ $sort: { [sortField]: sortOrder } });
+				} else {
+					this.query = this.query.sort({ [sortField]: sortOrder });
+				}
 			}
 		}
 		return this;
 	}
+
 
 	limitFields() {
 		if (this.queryStr.fields) {

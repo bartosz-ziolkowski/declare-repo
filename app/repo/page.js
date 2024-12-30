@@ -46,6 +46,8 @@ export default function Repo() {
 	const [allMetrics, setAllMetrics] = useState([]);
 	const [currentMetricName, setCurrentMetricName] = useState("");
 	const [currentMetricId, setCurrentMetricId] = useState("");
+	const [allDomains, setAllDomains] = useState(new Set());
+	const [allPurposes, setPurposes] = useState(new Set());
 
 	const [filters, setFilters] = useState({
 		name: "",
@@ -53,26 +55,76 @@ export default function Repo() {
 		createdAtStart: "",
 		createdAtEnd: "",
 		sort: "",
-
-		numberOfConstraints: "",
-		purpose: "",
+		activities: "",
+		constraints: "",
 		applicationDomain: "",
-		separability: "",
 		density: "",
+		separability: "",
+		constraintVariability: ""
 	});
+
 	const handleFilterChange = (e) => {
 		const { name, value } = e.target;
 		setFilters((prev) => {
 			const newFilters = { ...prev, [name]: value };
-			if (
-				(name === "createdAtStart" || name === "createdAtEnd") &&
-				value === ""
-			) {
+
+			if ((name === "createdAtStart" || name === "createdAtEnd") && value === "") {
 				delete newFilters[name];
 			}
+
+			if (name === "activities" || name === "constraints") {
+				if (value) {
+					const sortParts = value.split("_");
+					if (sortParts.length === 2) {
+						const [field, sortOrder] = sortParts;
+						newFilters.sort = `${field}_${sortOrder}`;
+					} else {
+						delete newFilters.sort;
+					}
+				} else {
+					delete newFilters.sort;
+				}
+			}
+
+			const metricRanges = {
+				density: {
+					low: { min: 0, max: 0.5 },
+					medium: { min: 0.5, max: 1.5 },
+					high: { min: 1.5, max: 100 }
+				},
+				separability: {
+					low: { min: 0, max: 0.33 },
+					medium: { min: 0.34, max: 0.66 },
+					high: { min: 0.67, max: 1 }
+				},
+				constraintVariability: {
+					low: { min: 0, max: 0.33 },
+					medium: { min: 0.34, max: 0.66 },
+					high: { min: 0.67, max: 1 }
+				}
+			};
+
+			if (["density", "separability", "constraintVariability"].includes(name)) {
+				if (value && metricRanges[name]?.[value]) {
+					const range = metricRanges[name][value];
+					newFilters[`${name}Min`] = range.min;
+					newFilters[`${name}Max`] = range.max;
+				} else {
+					delete newFilters[`${name}Min`];
+					delete newFilters[`${name}Max`];
+				}
+			}
+
+			if (name === "applicationDomain" || name === "purpose") {
+				if (!value) {
+					delete newFilters[name];
+				}
+			}
+
 			return newFilters;
 		});
 	};
+
 
 	const openModal = (id, formula, name) => {
 		setCurrentFormula(formula);
@@ -84,40 +136,80 @@ export default function Repo() {
 	const loadData = useCallback(async () => {
 		setIsLoading(true);
 		try {
+			if (displayType === "all" && (!allDomains.size || !allPurposes.size)) {
+				const allModelsResult = await fetchData("all", new URLSearchParams({ page: 1 }));
+				const domains = new Set();
+				const purposes = new Set();
+
+				allModelsResult.modelsWithMetrics?.forEach(model => {
+					const domainMetric = model.metrics.find(m => m.metricID === "SO2");
+					const purposeMetric = model.metrics.find(m => m.metricID === "SO1");
+
+					if (domainMetric?.calculationResult && domainMetric.calculationResult !== "N/A") {
+						domains.add(domainMetric.calculationResult);
+					}
+
+					if (purposeMetric?.calculationResult && purposeMetric.calculationResult !== "N/A") {
+						purposes.add(purposeMetric.calculationResult);
+					}
+				});
+
+				setAllDomains(domains);
+				setPurposes(purposes);
+			}
+
 			const queryParams = new URLSearchParams({
 				page: currentPage,
 				...Object.entries(filters).reduce((acc, [key, value]) => {
 					if (value !== "") {
-						acc[key] = value;
+						if (key === "activities" || key === "constraints") {
+							const sortParts = value.split("_");
+							if (sortParts.length === 2) {
+								const [field, sortOrder] = sortParts;
+								acc.sort = `${field}_${sortOrder}`;
+							}
+						} else {
+							acc[key] = value;
+						}
 					}
 					return acc;
-				}, {}),
+				}, {})
 			});
 
 			const result = await fetchData(displayType, queryParams);
+
+			let userId = null;
 			let isPrivilegedUser = false;
-			if (session && session.user) {
-				isPrivilegedUser =
-					session.user.role === "moderator" || session.user.role === "admin";
+
+			if (session?.user) {
+				isPrivilegedUser = ["moderator", "admin"].includes(session.user.role);
+				userId = session.user._id;
 			}
 
-			if (displayType === "models") {
+			if (displayType === "all") {
+				const filteredModelsWithMetrics = isPrivilegedUser
+					? result.modelsWithMetrics
+					: result.modelsWithMetrics.filter(
+						model => model.author === userId || model.public !== false
+					);
+
+				setData(filteredModelsWithMetrics);
+				const allMetrics = getObjectWithMostMetrics(filteredModelsWithMetrics);
+				setAllMetrics(allMetrics);
+			} else if (displayType === "models") {
 				const filteredModels = isPrivilegedUser
 					? result.models
-					: result.models.filter((model) => model.public !== false);
+					: result.models.filter(
+						model => model.author._id === userId || model.public !== false
+					);
 				setData(filteredModels);
 			} else if (displayType === "metrics") {
 				const filteredMetrics = isPrivilegedUser
 					? result.metrics
-					: result.metrics.filter((metric) => metric.public !== false);
+					: result.metrics.filter(
+						metric => metric.author?._id === userId || metric.public !== false
+					);
 				setData(filteredMetrics);
-			} else if (displayType === "all") {
-				const filteredModelsWithMetrics = isPrivilegedUser
-					? result.modelsWithMetrics
-					: result.modelsWithMetrics.filter((model) => model.public !== false);
-				setData(filteredModelsWithMetrics);
-				const allMetrics = getObjectWithMostMetrics(filteredModelsWithMetrics);
-				setAllMetrics(allMetrics);
 			}
 
 			setTotalItems(result.filteredCount);
@@ -129,7 +221,8 @@ export default function Repo() {
 		} finally {
 			setIsLoading(false);
 		}
-	}, [displayType, currentPage, filters, session]);
+	}, [displayType, currentPage, filters, session, allDomains.size, allPurposes.size]);
+
 
 	useEffect(() => {
 		loadData();
@@ -206,31 +299,28 @@ export default function Repo() {
 				<div className="flex space-x-2">
 					<button
 						onClick={() => toggleDisplayType("all")}
-						className={`${
-							displayType === "all"
-								? "bg-orange text-black"
-								: "bg-blue hover:bg-indigo text-white"
-						}  font-bold py-2 px-4 rounded transition duration-300 ease-in-out`}
+						className={`${displayType === "all"
+							? "bg-orange text-black"
+							: "bg-blue hover:bg-indigo text-white"
+							}  font-bold py-2 px-4 rounded transition duration-300 ease-in-out`}
 					>
 						All
 					</button>
 					<button
 						onClick={() => toggleDisplayType("models")}
-						className={`${
-							displayType === "models"
-								? "bg-orange text-black"
-								: "bg-blue hover:bg-indigo text-white"
-						}  font-bold py-2 px-4 rounded transition duration-300 ease-in-out`}
+						className={`${displayType === "models"
+							? "bg-orange text-black"
+							: "bg-blue hover:bg-indigo text-white"
+							}  font-bold py-2 px-4 rounded transition duration-300 ease-in-out`}
 					>
 						Models
 					</button>
 					<button
 						onClick={() => toggleDisplayType("metrics")}
-						className={`${
-							displayType === "metrics"
-								? "bg-orange text-black"
-								: "bg-blue hover:bg-indigo text-white"
-						}  font-bold py-2 px-4 rounded transition duration-300 ease-in-out`}
+						className={`${displayType === "metrics"
+							? "bg-orange text-black"
+							: "bg-blue hover:bg-indigo text-white"
+							}  font-bold py-2 px-4 rounded transition duration-300 ease-in-out`}
 					>
 						Metrics
 					</button>
@@ -363,11 +453,15 @@ export default function Repo() {
 							<div className="flex flex-col space-y-4">
 								<div className="flex justify-center space-x-4">
 									<div className="w-1/3">
-										<label
-											htmlFor="activities"
-											className="block text-sm font-medium text-gray-700 mb-1"
-										>
-											Number of Activities
+										<label htmlFor="activities" className="block text-sm font-medium text-gray-700 mb-1">
+											Number of Activities ({data?.length && data.some(m => m.metrics?.find(metric => metric.metricID === "SN4")?.calculationResult !== "N/A") ?
+												`${Math.min(...data.map(m => {
+													const value = m.metrics?.find(metric => metric.metricID === "SN4")?.calculationResult;
+													return value && value !== "N/A" ? Number(value) : Number.MAX_VALUE;
+												}).filter(v => v !== Number.MAX_VALUE)) || 0} - ${Math.max(...data.map(m => {
+													const value = m.metrics?.find(metric => metric.metricID === "SN4")?.calculationResult;
+													return value && value !== "N/A" ? Number(value) : 0;
+												}))}` : "0 - 0"})
 										</label>
 										<select
 											id="activities"
@@ -382,11 +476,15 @@ export default function Repo() {
 										</select>
 									</div>
 									<div className="w-1/3">
-										<label
-											htmlFor="constraints"
-											className="block text-sm font-medium text-gray-700 mb-1"
-										>
-											Number of Constraints
+										<label htmlFor="constraints" className="block text-sm font-medium text-gray-700 mb-1">
+											Number of Constraints ({data?.length && data.some(m => m.metrics?.find(metric => metric.metricID === "SN5")?.calculationResult !== "N/A") ?
+												`${Math.min(...data.map(m => {
+													const value = m.metrics?.find(metric => metric.metricID === "SN5")?.calculationResult;
+													return value && value !== "N/A" ? Number(value) : Number.MAX_VALUE;
+												}).filter(v => v !== Number.MAX_VALUE)) || 0} - ${Math.max(...data.map(m => {
+													const value = m.metrics?.find(metric => metric.metricID === "SN5")?.calculationResult;
+													return value && value !== "N/A" ? Number(value) : 0;
+												}))}` : "0 - 0"})
 										</label>
 										<select
 											id="constraints"
@@ -401,10 +499,7 @@ export default function Repo() {
 										</select>
 									</div>
 									<div className="w-1/3">
-										<label
-											htmlFor="applicationDomain"
-											className="block text-sm font-medium text-gray-700 mb-1"
-										>
+										<label htmlFor="applicationDomain" className="block text-sm font-medium text-gray-700 mb-1">
 											Application Domain
 										</label>
 										<select
@@ -415,21 +510,25 @@ export default function Repo() {
 											className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
 										>
 											<option value="">All</option>
-											<option value="healthcare">Healthcare</option>
-											<option value="finance">Finance</option>
-											<option value="manufacturing">Manufacturing</option>
-											<option value="education">Education</option>
-											<option value="other">Other</option>
+											{Array.from(allDomains).sort().map(domain => (
+												<option key={domain} value={domain}>
+													{domain}
+												</option>
+											))}
 										</select>
 									</div>
 								</div>
 								<div className="flex justify-center space-x-4">
 									<div className="w-1/3">
-										<label
-											htmlFor="density"
-											className="block text-sm font-medium text-gray-700 mb-1"
-										>
-											Density
+										<label htmlFor="density" className="block text-sm font-medium text-gray-700 mb-1">
+											Density ({data?.length && data.some(m => m.metrics?.find(metric => metric.metricID === "SN2")?.calculationResult !== "N/A") ?
+												`${(Math.min(...data.map(m => {
+													const value = m.metrics?.find(metric => metric.metricID === "SN2")?.calculationResult;
+													return value && value !== "N/A" ? Number(value) : Number.MAX_VALUE;
+												}).filter(v => v !== Number.MAX_VALUE)) || 0).toFixed(2)} - ${(Math.max(...data.map(m => {
+													const value = m.metrics?.find(metric => metric.metricID === "SN2")?.calculationResult;
+													return value && value !== "N/A" ? Number(value) : 0;
+												}))).toFixed(2)}` : "0.00 - 0.00"})
 										</label>
 										<select
 											id="density"
@@ -445,31 +544,34 @@ export default function Repo() {
 										</select>
 									</div>
 									<div className="w-1/3">
-										<label
-											htmlFor="separability"
-											className="block text-sm font-medium text-gray-700 mb-1"
-										>
-											Separability
+										<label htmlFor="purpose" className="block text-sm font-medium text-gray-700 mb-1">
+											Purpose
 										</label>
 										<select
-											id="separability"
-											name="separability"
-											value={filters.separability}
+											id="purpose"
+											name="purpose"
+											value={filters.purpose}
 											onChange={handleFilterChange}
 											className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
 										>
 											<option value="">All</option>
-											<option value="low">Low (0-0.33)</option>
-											<option value="medium">Medium (0.34-0.66)</option>
-											<option value="high">High (0.67-1)</option>
+											{Array.from(allPurposes).sort().map(purpose => (
+												<option key={purpose} value={purpose}>
+													{purpose}
+												</option>
+											))}
 										</select>
 									</div>
 									<div className="w-1/3">
-										<label
-											htmlFor="constraintVariability"
-											className="block text-sm font-medium text-gray-700 mb-1"
-										>
-											Constraint Variability
+										<label htmlFor="constraintVariability" className="block text-sm font-medium text-gray-700 mb-1">
+											Constraint Variability ({data?.length && data.some(m => m.metrics?.find(metric => metric.metricID === "SN3")?.calculationResult !== "N/A") ?
+												`${(Math.min(...data.map(m => {
+													const value = m.metrics?.find(metric => metric.metricID === "SN3")?.calculationResult;
+													return value && value !== "N/A" ? Number(value) : Number.MAX_VALUE;
+												}).filter(v => v !== Number.MAX_VALUE)) || 0).toFixed(3)} - ${(Math.max(...data.map(m => {
+													const value = m.metrics?.find(metric => metric.metricID === "SN3")?.calculationResult;
+													return value && value !== "N/A" ? Number(value) : 0;
+												}))).toFixed(3)}` : "0.000 - 0.000"})
 										</label>
 										<select
 											id="constraintVariability"
@@ -709,9 +811,9 @@ export default function Repo() {
 														<div className="flex items-center">
 															{(session?.user?.role === "admin" ||
 																session?.user?.role === "moderator" ||
-																session?.user?._id === item.author?._id) && (
-																<VisibilityIcon isPublic={item.public} />
-															)}
+																session?.user?._id === item.author) && (
+																	<VisibilityIcon isPublic={item.public} />
+																)}
 															<Link
 																href={`/repo/models/${item._id}`}
 																className="text-blue hover:text-green"
@@ -739,7 +841,7 @@ export default function Repo() {
 																				: "🔴"
 																			: headerMetric.metricID === "BH1"
 																				? metric.calculationResult
-																						.redundantCount || "0"
+																					.redundantCount || "0"
 																				: metric.calculationResult}
 																</td>
 															);
@@ -757,8 +859,8 @@ export default function Repo() {
 															{(session?.user?.role === "admin" ||
 																session?.user?.role === "moderator" ||
 																session?.user?._id === item.author?._id) && (
-																<VisibilityIcon isPublic={item.public} />
-															)}
+																	<VisibilityIcon isPublic={item.public} />
+																)}
 															<Link
 																href={`/repo/models/${item._id}`}
 																className="text-blue hover:text-green"
@@ -843,8 +945,8 @@ export default function Repo() {
 															{(session?.user?.role === "admin" ||
 																session?.user?.role === "moderator" ||
 																session?.user?._id === item.author?._id) && (
-																<VisibilityIcon isPublic={item.public} />
-															)}
+																	<VisibilityIcon isPublic={item.public} />
+																)}
 
 															<Link
 																href={`/repo/metrics/${item._id}`}

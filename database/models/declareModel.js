@@ -21,15 +21,13 @@ const declareModelSchema = new mongoose.Schema(
 				type: String,
 				trim: true,
 				validate: {
-					validator: function (v) {
-						return (
-							v === null ||
-							v === "" ||
-							/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})(\/[-\w\._~:/?#[\]@!$&'()*+,;=]*)*\/?$/.test(
-								v,
-							)
-						);
-					},
+					validator: (v) => (
+						v === null ||
+						v === "" ||
+						/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})(\/[-\w\._~:/?#[\]@!$&'()*+,;=]*)*\/?$/.test(
+							v,
+						)
+					),
 					message: (props) => `${props.value} is not a valid URL!`,
 				},
 			},
@@ -60,7 +58,7 @@ const declareModelSchema = new mongoose.Schema(
 );
 
 const DeclareModel =
-  mongoose.models.DeclareModel ||
-  mongoose.model("DeclareModel", declareModelSchema, "declareModel");
+	mongoose.models.DeclareModel ||
+	mongoose.model("DeclareModel", declareModelSchema, "declareModel");
 
 export default DeclareModel;

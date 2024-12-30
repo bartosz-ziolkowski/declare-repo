@@ -116,7 +116,7 @@ export default function CreateDeclareModel() {
 
 			try {
 				if (formData.content) {
-          
+
 					const contentUrl = await uploadFileToS3(formData.content);
 					formDataToSend.append("contentUrl", contentUrl);
 				}
@@ -143,12 +143,10 @@ export default function CreateDeclareModel() {
 					router.push("/repo");
 				} else {
 					const data = await response.json();
-					console.log("blad1", data);
 					toast.error(data.message);
-				
+
 				}
 			} catch (error) {
-				console.log("blad2", error);
 				setIsError(error);
 			} finally {
 				setIsSubmitting(false);
@@ -360,11 +358,10 @@ export default function CreateDeclareModel() {
 								<button
 									type="submit"
 									disabled={isSubmitting || status === "unauthenticated"}
-									className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
-										status === "authenticated"
+									className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${status === "authenticated"
 											? "bg-indigo hover:bg-green"
 											: "bg-gray-400 cursor-not-allowed"
-									} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo`}
+										} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo`}
 								>
 									{isSubmitting ? "Creating..." : "Create Model"}
 								</button>

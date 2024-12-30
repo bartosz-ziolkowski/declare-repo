@@ -45,6 +45,19 @@ export async function calculateMetrics(fileContent, modelPath) {
 		...rest,
 	};
 
+	if (verifyModelResult.message === "Computation timed out") {
+		redundancy = {
+			message: "Computation timed out ⚠️",
+			result: "",
+			redundantCount: 0,
+		};
+		consistency = {
+			message: "Computation timed out ⚠️",
+			satisfiable: null,
+			...rest,
+		};
+	}
+
 	const metrics = {
 		SN1: activities + constraints,
 		SN2: Number.parseFloat(calculateDensity(weaklyComponents)),
@@ -62,6 +75,7 @@ export async function calculateMetrics(fileContent, modelPath) {
 	};
 	return metrics;
 }
+
 
 function calculateCV(weaklyComponents) {
 	function getTemplatesFromConstraints(constraints) {

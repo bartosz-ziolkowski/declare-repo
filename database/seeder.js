@@ -17,8 +17,8 @@ const seed = async () => {
     //await DeclareModel.insertMany(mockDeclareModels);
 
     await DeclareAndMetric.deleteMany();
-    await Metric.deleteMany();
-    await Metric.insertMany(mockMetrics);
+    // await Metric.deleteMany();
+    // await Metric.insertMany(mockMetrics);
 
   } catch (error) {
     console.error("Seeding failed:", error);
