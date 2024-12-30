@@ -4,8 +4,11 @@ import { useSearchParams } from "next/navigation";
 export function MyPagination({ resPerPage, totalItemsCount, setCurrentPage }) {
   const searchParams = useSearchParams();
   const currentPage = Number(searchParams.get("page") || 1);
-
   const totalPages = Math.ceil(totalItemsCount / resPerPage);
+
+  if (totalItemsCount === 0 || totalPages <= 1) {
+    return null;
+  }
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -41,40 +44,36 @@ export function MyPagination({ resPerPage, totalItemsCount, setCurrentPage }) {
   };
 
   return (
-    <div>
-      {resPerPage < totalItemsCount && (
-        <div className="flex justify-center items-center mb-12">
-          <button
-            onClick={() => handlePageChange(1)}
-            disabled={currentPage === 1}
-            className="px-3 py-1 mx-1 rounded bg-white text-blue hover:bg-indigo hover:text-white disabled:opacity-50"
-          >
-            First
-          </button>
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-3 py-1 mx-1 rounded bg-white text-blue hover:bg-indigo hover:text-white disabled:opacity-50"
-          >
-            Prev
-          </button>
-          {renderPageNumbers()}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 mx-1 rounded bg-white text-blue hover:bg-indigo hover:text-white disabled:opacity-50"
-          >
-            Next
-          </button>
-          <button
-            onClick={() => handlePageChange(totalPages)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 mx-1 rounded bg-white text-blue hover:bg-indigo hover:text-white disabled:opacity-50"
-          >
-            Last
-          </button>
-        </div>
-      )}
+    <div className="flex justify-center items-center mb-12">
+      <button
+        onClick={() => handlePageChange(1)}
+        disabled={currentPage === 1}
+        className="px-3 py-1 mx-1 rounded bg-white text-blue hover:bg-indigo hover:text-white disabled:opacity-50"
+      >
+        First
+      </button>
+      <button
+        onClick={() => handlePageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="px-3 py-1 mx-1 rounded bg-white text-blue hover:bg-indigo hover:text-white disabled:opacity-50"
+      >
+        Prev
+      </button>
+      {renderPageNumbers()}
+      <button
+        onClick={() => handlePageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="px-3 py-1 mx-1 rounded bg-white text-blue hover:bg-indigo hover:text-white disabled:opacity-50"
+      >
+        Next
+      </button>
+      <button
+        onClick={() => handlePageChange(totalPages)}
+        disabled={currentPage === totalPages}
+        className="px-3 py-1 mx-1 rounded bg-white text-blue hover:bg-indigo hover:text-white disabled:opacity-50"
+      >
+        Last
+      </button>
     </div>
   );
 }
