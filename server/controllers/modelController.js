@@ -546,6 +546,12 @@ export const allModelsAndMetrics = errorHandler(async (req) => {
 					}
 				}
 			}
+		},
+		{
+			$sort: {
+				modelCreatedAt: -1,
+				_id: 1
+			}
 		}
 	];
 
@@ -557,21 +563,20 @@ export const allModelsAndMetrics = errorHandler(async (req) => {
 		.paginate(resPerPage)
 		.query;
 
-	const modelsWithMetrics = await DeclareAndMetric.aggregate(filteredPipeline);
-
-	const totalCountPipeline = [
-		...pipeline.slice(0, -1),
-		{ $count: "total" }
-	];
-
-	const [totalCount] = await DeclareAndMetric.aggregate(totalCountPipeline);
+	const [modelsWithMetrics, [totalCount]] = await Promise.all([
+		DeclareAndMetric.aggregate(filteredPipeline),
+		DeclareAndMetric.aggregate([
+			...pipeline,
+			{ $count: "total" }
+		])
+	]);
 
 	const totalModelsCount = await DeclareModel.countDocuments();
 
 	return NextResponse.json({
 		success: true,
 		totalCount: totalModelsCount,
-		filteredCount: totalModelsCount,
+		filteredCount: totalCount?.total || 0,
 		resPerPage,
 		modelsWithMetrics
 	});
