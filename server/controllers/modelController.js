@@ -568,8 +568,8 @@ export const allModelsAndMetrics = errorHandler(async (req) => {
 
 	return NextResponse.json({
 		success: true,
-		totalCount,
-		filteredCount: totalCount,
+		totalCount: totalCount.total, 
+		filteredCount: totalCount.filteredCount.total, 
 		resPerPage,
 		modelsWithMetrics
 	});
