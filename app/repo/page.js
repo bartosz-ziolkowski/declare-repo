@@ -841,10 +841,10 @@ export default function Repo() {
 																				: "🔴"
 																			: headerMetric.metricID === "BH1"
 																				? (metric.calculationResult.redundantCount === -1
-																					? "🍊"
+																					? "🟠"
 																					: metric.calculationResult.redundantCount || "0")
 																				: metric.calculationResult
-}
+																	}
 																</td>
 															);
 														})
