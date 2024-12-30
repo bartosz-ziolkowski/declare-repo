@@ -501,13 +501,11 @@ export const updateModelMetrics = errorHandler(async (req, { params }) => {
 export const allModelsAndMetrics = errorHandler(async (req) => {
 	const { searchParams } = new URL(req.url);
 	const queryStr = {};
+	const resPerPage = 6;
 
 	searchParams.forEach((value, key) => {
 		queryStr[key] = value;
 	});
-
-	const page = Number.parseInt(queryStr.page) || 1;
-	const resPerPage = 6;
 
 	const pipeline = [
 		{
@@ -555,28 +553,35 @@ export const allModelsAndMetrics = errorHandler(async (req) => {
 		}
 	];
 
-	const apiFilters = new APIFilters(pipeline, queryStr);
-	const filteredPipeline = apiFilters
+	const apiFilters = new APIFilters(pipeline, queryStr)
 		.search()
 		.filter()
-		.sort()
-		.paginate(resPerPage)
-		.query;
+		.sort();
 
-	const [modelsWithMetrics, [totalCount]] = await Promise.all([
-		DeclareAndMetric.aggregate(filteredPipeline),
-		DeclareAndMetric.aggregate([
-			...pipeline,
-			{ $count: "total" }
-		])
+	const filteredPipeline = apiFilters.query;
+
+	const [totalCount, filteredResults] = await Promise.all([
+		DeclareModel.countDocuments(),
+		DeclareAndMetric.aggregate(filteredPipeline)
 	]);
 
-	const totalModelsCount = await DeclareModel.countDocuments();
+	const filteredCount = filteredResults.length;
+
+	const page = Number(queryStr.page || 1);
+	const skip = (page - 1) * resPerPage;
+
+	const paginatedPipeline = [
+		...filteredPipeline,
+		{ $skip: skip },
+		{ $limit: resPerPage }
+	];
+
+	const modelsWithMetrics = await DeclareAndMetric.aggregate(paginatedPipeline);
 
 	return NextResponse.json({
 		success: true,
-		totalCount: totalModelsCount,
-		filteredCount: totalCount?.total || 0,
+		totalCount,
+		filteredCount,
 		resPerPage,
 		modelsWithMetrics
 	});
