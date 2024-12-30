@@ -571,7 +571,7 @@ export const allModelsAndMetrics = errorHandler(async (req) => {
 	return NextResponse.json({
 		success: true,
 		totalCount: totalModelsCount,
-		filteredCount: totalCount?.total || 0,
+		filteredCount: totalModelsCount,
 		resPerPage,
 		modelsWithMetrics
 	});
