@@ -49,7 +49,7 @@ export async function calculateMetrics(fileContent, modelPath) {
 		redundancy = {
 			message: "Computation timed out ⚠️",
 			result: "",
-			redundantCount: 0,
+			redundantCount: -1,
 		};
 		consistency = {
 			message: "Computation timed out ⚠️",
