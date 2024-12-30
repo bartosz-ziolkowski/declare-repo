@@ -124,7 +124,7 @@ const DeclareModel = ({ params }) => {
 				setIsAuthor(true);
 			}
 		}
-	}, [sessionStatus, session, model]);
+	}, [sessionStatus, session, model, userRole]);
 
 	const handleDelete = () => {
 		setShowDeleteModal(true);

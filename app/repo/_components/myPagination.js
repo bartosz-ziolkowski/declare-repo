@@ -3,7 +3,7 @@ import { useSearchParams } from "next/navigation";
 
 export function MyPagination({ resPerPage, totalItemsCount, setCurrentPage }) {
   const searchParams = useSearchParams();
-  let currentPage = Number(searchParams.get("page") || 1);
+  const currentPage = Number(searchParams.get("page") || 1);
 
   const totalPages = Math.ceil(totalItemsCount / resPerPage);
 
@@ -16,7 +16,7 @@ export function MyPagination({ resPerPage, totalItemsCount, setCurrentPage }) {
     const maxPagesToShow = 5;
 
     let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+    const endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
 
     if (endPage - startPage + 1 < maxPagesToShow) {
       startPage = Math.max(1, endPage - maxPagesToShow + 1);
@@ -27,11 +27,10 @@ export function MyPagination({ resPerPage, totalItemsCount, setCurrentPage }) {
         <button
           key={i}
           onClick={() => handlePageChange(i)}
-          className={`px-3 py-1 mx-1 rounded ${
-            currentPage === i
+          className={`px-3 py-1 mx-1 rounded ${currentPage === i
               ? "bg-blue text-white"
               : "bg-white text-blue hover:bg-indigo hover:text-white"
-          }`}
+            }`}
         >
           {i}
         </button>

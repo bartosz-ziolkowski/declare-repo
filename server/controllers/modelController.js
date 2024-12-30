@@ -565,8 +565,8 @@ export const allModelsAndMetrics = errorHandler(async (req) => {
 	];
 
 	const [totalCountResult] = await DeclareAndMetric.aggregate(totalCountPipeline);
-	const totalCount = totalCountResult ? totalCountResult.total : 0;
-
+	const totalCount = await DeclareModel.countDocuments();
+	
 	return NextResponse.json({
 		success: true,
 		totalCount,

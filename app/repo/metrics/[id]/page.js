@@ -90,7 +90,7 @@ function Metric({ params }) {
 				setIsAuthor(true);
 			}
 		}
-	}, [sessionStatus, session, metric]);
+	}, [sessionStatus, session, metric, userRole]);
 
 	const handleDelete = () => {
 		setShowDeleteModal(true);
