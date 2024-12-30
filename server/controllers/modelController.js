@@ -29,11 +29,11 @@ export const allModels = errorHandler(async (req) => {
 	});
 
 	const apiFilters = new APIFilters(DeclareModel.find(), queryStr).filter().sort();
-	
+
 	apiFilters.search();
 
 	const totalCount = await DeclareModel.countDocuments();
-	
+
 	const filteredCount = await DeclareModel.countDocuments(
 		apiFilters.query.getFilter(),
 	);
@@ -566,10 +566,12 @@ export const allModelsAndMetrics = errorHandler(async (req) => {
 
 	const [totalCount] = await DeclareAndMetric.aggregate(totalCountPipeline);
 
+	const totalModelsCount = await DeclareModel.countDocuments();
+
 	return NextResponse.json({
 		success: true,
-		totalCount: totalCount?.total || 0, 
-		filteredCount: totalCount?.filteredCount?.total || 0, 
+		totalCount: totalModelsCount,
+		filteredCount: totalCount?.total || 0,
 		resPerPage,
 		modelsWithMetrics
 	});
