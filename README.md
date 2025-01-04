@@ -2,6 +2,8 @@
 
 A web-based repository for storing, sharing and analyzing DECLARE process models.
 
+![Repository Overview](https://res.cloudinary.com/dv7nhvy8e/image/upload/v1735996892/qh6scjskpjowy4asugoc.png)
+
 ## Overview
 
 Declare Repository is a comprehensive platform designed to facilitate the storage, sharing, and analysis of declarative process models expressed in DECLARE notation. The repository aims to promote model reuse and enable benchmarking capabilities within the declarative process modeling community.
@@ -86,6 +88,8 @@ npm run dev
 
 Full API documentation is available at https://declare-repo.vercel.app/api-docs
 
+![API Documentation](https://res.cloudinary.com/dv7nhvy8e/image/upload/v1735997029/qfs4quwj3oagfcm7wcsi.png)
+
 ## Browser Support
 
 - Chrome 64+
@@ -114,4 +118,4 @@ For questions and support, please open an issue in the GitHub repository.
 
 ## Acknowledgments
 
-This project was developed as part of a Master's thesis at the Technical University of Denmark (DTU).
+This project was developed as part of a Master's thesis at the Section for Software Systems Engineering, Department of Applied Mathematics and Computer Science, at the Technical University of Denmark (DTU).
