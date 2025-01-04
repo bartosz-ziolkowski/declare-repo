@@ -833,18 +833,22 @@ export default function Repo() {
 																	key={`${item._id}-${headerMetric.metricID}`}
 																	className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap"
 																>
-																	{!metric || metric.calculationResult === ""
-																		? "N/A"
-																		: headerMetric.metricID === "BH2"
-																			? metric.calculationResult.satisfiable
-																				? "🟢"
-																				: "🔴"
-																			: headerMetric.metricID === "BH1"
-																				? (metric.calculationResult.redundantCount === -1
-																					? "🟠"
-																					: metric.calculationResult.redundantCount || "0")
-																				: metric.calculationResult
+																	{
+																		!metric || metric.calculationResult === ""
+																			? "N/A"
+																			: metric.calculationResult.message === "Computation timed out ⚠️"
+																				? "🟠"
+																				: headerMetric.metricID === "BH2"
+																					? metric.calculationResult.satisfiable
+																						? "🟢"
+																						: "🔴"
+																					: headerMetric.metricID === "BH1"
+																						? metric.calculationResult.redundantCount === -1
+																							? "🟠"
+																							: metric.calculationResult.redundantCount || "0"
+																						: metric.calculationResult
 																	}
+
 																</td>
 															);
 														})
