@@ -40,11 +40,14 @@ const Legend = () => {
 	const renderBibtex = () => {
 		return (
 			<pre className="bg-gray-100 rounded-lg p-4 text-sm text-gray-700 overflow-auto">
-				{`@misc{declarerepo2025,
-  author = {Bartosz Ziolkowski},
-  title = {Declare Repository: Declarative Process Models and Characteristics},
-  howpublished = {\\url{https://declare-repo.vercel.app/}},
-  year = {2025},
+				{`@software{Ziolkowski_Declare_Repository_A_2025,
+author = {Ziolkowski, Bartosz},
+license = {MIT},
+month = jan,
+title = {{Declare Repository: A web-based repository for storing, sharing and analyzing DECLARE process models}},
+url = {https://github.com/bartosz-ziolkowski/declare-repo},
+version = {1.0.0},
+year = {2025}
 }`}
 			</pre>
 		);
