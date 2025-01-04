@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Ziolkowski"
+    given-names: "Bartosz"
+    affiliation: "Technical University of Denmark"
+title: "Declare Repository: A web-based repository for storing, sharing and analyzing DECLARE process models"
+version: 1.0.0
+date-released: 2025-01-16
+url: "https://declare-repo.vercel.app"
+repository-code: "https://github.com/bartosz-ziolkowski/declare-repo"
+license: MIT
+type: software
+keywords:
+  - declare-process-models
+  - declarative-process-models
+  - bpm
+  - business-process-management
+  - process-modeling
+abstract: >-
+  A comprehensive platform for storing, sharing and analyzing declarative process models 
+  expressed in DECLARE language. The repository aims to promote model reuse and enable 
+  benchmarking capabilities within the declarative process modeling community. It provides 
+  automatic calculation of model metrics, collaborative model sharing features, and 
+  a RESTful API for programmatic access.
+references:
+  - authors:
+      - family-names: "Ziolkowski"
+        given-names: "Bartosz"
+    title: "Systematic collection and classification of DECLARE process models"
+    type: thesis
+    institution:
+      name: "Technical University of Denmark"
+      department: "Department of Applied Mathematics and Computer Science"
+      section: "Section for Software Systems Engineering"
+    year: 2025
+    month: 1
