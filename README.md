@@ -1,36 +1,117 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Declare Repository
+
+A web-based repository for storing, sharing and analyzing DECLARE process models.
+
+## Overview
+
+Declare Repository is a comprehensive platform designed to facilitate the storage, sharing, and analysis of declarative process models expressed in DECLARE notation. The repository aims to promote model reuse and enable benchmarking capabilities within the declarative process modeling community.
+
+## Features
+
+- **Model Management**
+  - Upload and store DECLARE process models in multiple formats (.decl, .txt, .png)
+  - Browse and search stored models
+  - Filter models based on various metrics and characteristics
+  - Download models for reuse
+
+- **Metric Analysis**
+  - Automatic calculation of key metrics:
+    - Size
+    - Density  
+    - Constraint Variability
+    - Number of Activities
+    - Number of Constraints
+    - Separability
+    - Semantic Redundancy
+    - Consistency
+    - Purpose
+    - Application Domain
+
+- **API Integration**
+  - RESTful API for programmatic access
+  - Comprehensive API documentation via Swagger UI
+  - Secure authentication and authorization
+
+## Technology Stack
+
+- **Frontend**: Next.js, React
+- **Backend**: Next.js API routes
+- **Database**: MongoDB
+- **Cloud Services**: 
+  - AWS S3 for file storage
+  - AWS EC2 for metric computation
+- **Deployment**: Vercel
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 14.x or higher
+- MongoDB
+- AWS account for S3 and EC2 services
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/declare-repo.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+cd declare-repo
+npm install
+```
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+3. Configure environment variables:
+```bash
+cp .env.example .env.local
+```
+Edit `.env.local` with your configuration values
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+4. Run the development server:
+```bash
+npm run dev
+```
 
-## Learn More
+## Usage
 
-To learn more about Next.js, take a look at the following resources:
+1. Visit https://declare-repo.vercel.app/
+2. Register an account to upload and manage models
+3. Browse existing models or upload new ones
+4. Use the filtering system to find specific models
+5. Download models or analyze their metrics
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API Documentation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Full API documentation is available at https://declare-repo.vercel.app/api-docs
 
-## Deploy on Vercel
+## Browser Support
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Chrome 64+
+- Edge 79+
+- Firefox 67+
+- Opera 51+
+- Safari 12+
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Contributing
+
+We welcome contributions to improve the Declare Repository. Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contact
+
+For questions and support, please open an issue in the GitHub repository.
+
+## Acknowledgments
+
+This project was developed as part of a Master's thesis at the Technical University of Denmark (DTU).
