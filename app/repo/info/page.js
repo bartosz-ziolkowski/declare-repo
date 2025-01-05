@@ -79,7 +79,6 @@ year = {2025}
 							</div>
 						</div>
 
-						{/* FAQ Section */}
 						<div className="mb-12">
 							<h2 className="text-2xl font-bold text-gray-900 mb-6">FAQs</h2>
 							<div className="space-y-6">
@@ -94,10 +93,9 @@ year = {2025}
 							</div>
 						</div>
 
-						{/* References Section */}
 						<div className="mb-12">
 							<h2 className="text-2xl font-bold text-gray-900 mb-6">
-								References
+								If you use this software, please cite it as below:
 							</h2>
 							<div>{renderBibtex()}</div>
 						</div>
