@@ -125,3 +125,9 @@ For questions and support, please open an issue in the GitHub repository.
 ## Acknowledgments
 
 This project was developed as part of a Master's thesis at the Section for Software Systems Engineering, Department of Applied Mathematics and Computer Science, at the Technical University of Denmark (DTU).
+
+**Project Supervisors:**
+- **Andrey Rivkin** - Assistant Professor (Tenure track), Section for Software Systems Engineering, Department of Applied Mathematics and Computer Science, Technical University of Denmark
+- **Ekkart Kindler** - Associate Professor, Section for Software Systems Engineering, Department of Applied Mathematics and Computer Science, Technical University of Denmark
+
+Their invaluable guidance, thoughtful feedback, and dedicated support during weekly meetings were instrumental in shaping this research and ensuring its successful completion.
