@@ -9,7 +9,8 @@ version: 1.0.0
 date-released: 2025-01-16
 url: "https://declare-repo.vercel.app"
 repository-code: "https://github.com/bartosz-ziolkowski/declare-repo"
-license: MIT
+doi: 10.5281/zenodo.14609574
+license: Apache-2.0
 type: software
 keywords:
   - declare-process-models

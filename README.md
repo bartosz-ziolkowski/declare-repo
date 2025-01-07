@@ -1,4 +1,4 @@
-# Declare Repository
+# Declare Repository [![DOI](https://zenodo.org/badge/875302323.svg)](https://doi.org/10.5281/zenodo.14609574)
 
 A web-based repository for storing, sharing and analyzing DECLARE process models.
 
@@ -110,7 +110,7 @@ We welcome contributions to improve the Declare Repository. Please follow these 
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the Apache 2.0 License - see the LICENSE file for details.
 
 ## Contact
 
