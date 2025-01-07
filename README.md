@@ -1,4 +1,4 @@
-# Declare Repository
+# Declare Repository [![DOI](https://zenodo.org/badge/875302323.svg)](https://doi.org/10.5281/zenodo.14609574)
 
 A web-based repository for storing, sharing and analyzing DECLARE process models.
 
