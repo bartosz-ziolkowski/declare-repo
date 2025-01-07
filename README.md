@@ -98,6 +98,12 @@ Full API documentation is available at https://declare-repo.vercel.app/api-docs
 - Opera 51+
 - Safari 12+
 
+## Release Information  
+
+🎉 **Official Release Date**: *January 16, 2025* 🎉  
+
+The Declare Repository was officially released on January 16, 2025. Since then, it has been empowering the declarative process modeling community with tools for efficient storage, sharing, and analysis of DECLARE process models. Explore the platform, contribute to its growth, and make the most of this innovative repository!  
+
 ## Contributing
 
 We welcome contributions to improve the Declare Repository. Please follow these steps:
