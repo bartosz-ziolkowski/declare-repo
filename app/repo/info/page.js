@@ -36,7 +36,6 @@ const Legend = () => {
 		},
 	];
 
-
 	const renderBibtex = () => {
 		return (
 			<pre className="bg-gray-100 rounded-lg p-4 text-sm text-gray-700 overflow-auto">
@@ -50,6 +49,24 @@ version = {1.0.0},
 year = {2025}
 }`}
 			</pre>
+		);
+	};
+
+	const renderCodeRepository = () => {
+		return (
+			<div className="bg-gray-50 rounded-lg p-6">
+				<p className="text-gray-700">
+					You can find the source code on GitHub:{" "}
+					<a
+						href="https://github.com/bartosz-ziolkowski/declare-repo"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="text-blue-500 hover:underline"
+					>
+						https://github.com/bartosz-ziolkowski/declare-repo
+					</a>
+				</p>
+			</div>
 		);
 	};
 
@@ -75,7 +92,6 @@ year = {2025}
 								>
 									Back
 								</button>
-
 							</div>
 						</div>
 
@@ -98,6 +114,13 @@ year = {2025}
 								If you use this software, please cite it as below:
 							</h2>
 							<div>{renderBibtex()}</div>
+						</div>
+
+						<div className="mb-12">
+							<h2 className="text-2xl font-bold text-gray-900 mb-6">
+								Code Repository
+							</h2>
+							<div>{renderCodeRepository()}</div>
 						</div>
 					</div>
 				</div>
