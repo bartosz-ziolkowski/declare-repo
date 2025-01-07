@@ -43,7 +43,7 @@ const Legend = () => {
 				{`@software{Ziolkowski_Declare_Repository_A_2025,
 author = {Ziolkowski, Bartosz},
 doi = {10.5281/zenodo.14609574},
-license = {MIT},
+license = {Apache-2.0},
 month = jan,
 title = {{Declare Repository: A web-based repository for storing, sharing and analyzing DECLARE process models}},
 url = {https://github.com/bartosz-ziolkowski/declare-repo},
