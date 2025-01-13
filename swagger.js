@@ -3,7 +3,7 @@ const apiConfig = {
 	info: {
 		title: "Declare Repository - API Documentation",
 		version: "1.0.0",
-		description: "Documentation for Declarative Models and Metrics",
+		description: "This configuration defines the API documentation for the Declare Repository, providing detailed specifications for endpoints related to authentication, model and metric management, and repository operations. It includes definitions for request and response formats, parameter details, and example usage, ensuring clarity and consistency for developers integrating with the repository API.",
 	},
 	servers: [
 		{
