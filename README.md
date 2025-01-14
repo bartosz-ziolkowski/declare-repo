@@ -6,7 +6,7 @@ A web-based repository for storing, sharing and analyzing DECLARE process models
 
 ## Overview
 
-Declare Repository is a comprehensive platform designed to facilitate the storage, sharing, and analysis of declarative process models expressed in DECLARE notation. The repository aims to promote model reuse and enable benchmarking capabilities within the declarative process modeling community.
+Declare Repository is a comprehensive platform designed to facilitate the storage, sharing, and analysis of declarative process models expressed in DECLARE language. The repository aims to promote model reuse and enable benchmarking capabilities within the declarative process modeling community.
 
 ## Features
 
@@ -16,8 +16,8 @@ Declare Repository is a comprehensive platform designed to facilitate the storag
   - Filter models based on various metrics and characteristics
   - Download models for reuse
 
-- **Metric Analysis**
-  - Automatic calculation of key metrics:
+- **Classifier Analysis**
+  - Automatic calculation of initial classifiers:
     - Size
     - Density  
     - Constraint Variability
@@ -82,7 +82,7 @@ npm run dev
 2. Register an account to upload and manage models
 3. Browse existing models or upload new ones
 4. Use the filtering system to find specific models
-5. Download models or analyze their metrics
+5. Download models or analyze their classifiers
 
 ## API Documentation
 
