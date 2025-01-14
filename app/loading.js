@@ -45,7 +45,7 @@ export default function Loading() {
       </div>
       <div className="mt-8 text-center">
         <p className="text-sm text-gray-500 animate-pulse">
-          Fetching the latest models and metrics
+          Fetching the latest models and classifiers
         </p>
       </div>
     </div>
