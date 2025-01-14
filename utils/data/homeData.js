@@ -4,7 +4,7 @@ export const projects = [
 		btn: "Open Repository",
 		new_tab: false,
 		description:
-			"This application stores Declare process models and metrics to evaluate them, promoting a collaborative approach that encourages model reuse and benchmarking to support rigorous research and continuous improvement. With just one click above, you can join the Declare community.",
+			"This application stores Declare process models and classifiers to evaluate them, promoting a collaborative approach that encourages model reuse and benchmarking to support rigorous research and continuous improvement. With just one click above, you can join the Declare community.",
 		src: "repo_scr.png",
 		url: "/repo",
 		color: "#D4E157", 
@@ -33,7 +33,7 @@ export const projects = [
 		btn: "",
 		new_tab: false,
 		description:
-			"This Declare Repository was developed as part of a Master's thesis titled 'Systematic collection and classification of DECLARE process models'. The thesis aims to create a repository for Declare process models, which currently does not exist. While many repositories for imperative process models exist, they cannot include declarative models.",
+			"This Declare Repository was developed as part of a Master's thesis titled 'Systematic collection and classification of DECLARE process models'. The thesis aims to create a repository for Declare process models, which currently does not exist. While many repositories for imperative process models exist, they cannot include Declare models.",
 		src: "thesis_cover.png",
 		link: "imageholder.jpg",
 		color: "#AED6F1", 
