@@ -16,7 +16,7 @@ Declare Repository is a comprehensive platform designed to facilitate the storag
   - Filter models based on various metrics and characteristics
   - Download models for reuse
 
-- **Classifier Analysis**
+- **Metric Analysis**
   - Automatic calculation of initial classifiers:
     - Size
     - Density  
