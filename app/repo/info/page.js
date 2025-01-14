@@ -9,7 +9,7 @@ const Legend = () => {
 		{
 			question: "How are metrics calculated?",
 			answer:
-				"Eight metrics - number of activities, number of constraints, consistency, semantic redundancy, separability, constraint variability, density, and size - are automatically calculated and assigned on the server side. Additionally, two characteristics, application domain and purpose, must be specified by a model's author.",
+				"Eight metrics - number of activities, number of constraints, consistency, semantic redundancy, separability, constraint variability, density, and size - are automatically calculated and assigned on the server side. Additionally, the application domain and purpose must be specified by the model's author.",
 		},
 		{
 			question: "When do I need to upload .decl and .dot files when creating a model?",
