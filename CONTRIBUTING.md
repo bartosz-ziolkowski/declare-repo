@@ -47,7 +47,4 @@ npm run dev
 npm run test
 ```
 
-Contact the maintainers at [contact information] for any questions or concerns.
-
-Citations:
-[1] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/30762191/1afafa8f-c38f-4168-8127-f73702812d6b/Systematic_collection_and_classification_of_DECLARE_process_models_OG.pdf
+Contact the maintainers at bartoszxziolkowski@gmail.com for any questions or concerns.
